@@ -11,17 +11,22 @@
     "build": "yarn run build:code",
     "build:code": "tsc",
     "clean": "shx rm -rf build",
-    "run": "node dist/main.js"
+    "run": "node dist/main.js",
+    "test": "yarn run build && yarn node --experimental-vm-modules $(yarn bin jest)"
   },
   "devDependencies": {
+    "@types/jest": "27.0.1",
+    "@types/minimatch": "^5.1.0",
     "@types/node": "^18.7.13",
     "@types/shelljs": "^0.8.11",
     "commander": "^9.4.0",
+    "jest": "27.5.1",
     "shelljs": "^0.8.5",
     "shx": "^0.3.4",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@yarnpkg/shell": "^3.2.4"
+    "@yarnpkg/shell": "^3.2.4",
+    "minimatch": "^5.1.0"
   }
 }
