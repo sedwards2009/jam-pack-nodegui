@@ -34,7 +34,6 @@ export class PruneStep {
           return false;
         }
       }
-
     }
 
     return true;
@@ -66,6 +65,82 @@ export class PruneStep {
         treeFilter.addPattern(keepList, deleteList)
       }
     }
+
+    const nodeguiAcceptList = [
+      "node_modules/@nodegui/qode/binaries/*",
+      "node_modules/@nodegui/qode/package.json",
+      "node_modules/@nodegui/nodegui/package.json",
+      "node_modules/@nodegui/nodegui/dist/**/*.js",
+
+      "node_modules/postcss/**/*",
+
+      "node_modules/picocolors/picocolors.js",
+      "node_modules/picocolors/README.md",
+      "node_modules/picocolors/LICENSE",
+      "node_modules/picocolors/package.json",
+
+      "node_modules/source-map/**/*",
+
+      "node_modules/postcss-nodegui-autoprefixer/**/*",
+
+      "node_modules/cuid/index.js",
+      "node_modules/cuid/lib/*.js",
+      "node_modules/cuid/LICENSE",
+      "node_modules/cuid/package.json",
+
+      "node_modules/memoize-one/README.md",
+      "node_modules/memoize-one/LICENSE",
+      "node_modules/memoize-one/package.json",
+      "node_modules/memoize-one/dist/memoize-one.cjs.js",
+    ];
+
+    if (platform === "linux") {
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
+
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Core.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5DBus.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5EglFSDeviceIntegration.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5EglFsKmsSupport.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Gui.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Network.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5PrintSupport.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Sql.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Svg.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Widgets.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5XcbQpa.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicudata.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicui18n.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicule.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicutu.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicuuc.so*");
+
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqconnmanbearer.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqgenericbearer.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqnmbearer.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqsvgicon.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqgif.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqico.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqjpeg.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqsvg.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libcomposeplatforminputcontextplugin.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libibusplatforminputcontextplugin.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqxcb.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libcupsprintersupport.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqxcb-egl-integration.so");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqxcb-glx-integration.so");
+    }
+
+    const nodeguiDeleteList = [
+      "node_modules/@nodegui/nodegui/dist/demo.js",
+      "node_modules/@nodegui/nodegui/dist/demo.d.ts",
+      "node_modules/@nodegui/nodegui/dist/examples/**/*",
+
+      "node_modules/postcss-nodegui-autoprefixer/CHANGELOG.md",
+      "node_modules/postcss-nodegui-autoprefixer/dist/index.d.ts",
+      "node_modules/postcss-nodegui-autoprefixer/dist/__tests__/*",
+    ];
+
+    treeFilter.addPattern(nodeguiAcceptList, nodeguiDeleteList);
 
     treeFilter.run(".");
 
