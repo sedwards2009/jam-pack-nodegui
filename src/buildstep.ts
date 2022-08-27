@@ -33,6 +33,7 @@ export class BuildStep {
       logger.checkError(`Unable to run '${manager} --version'. Command reported: ${output}`);
       return false;
     }
+    logger.checkOk(`Using package script '${this.#getBuildScriptName()}' to build`);
 
     return true;
   }
@@ -42,6 +43,13 @@ export class BuildStep {
       return this.#config.packageManager;
     }
     return "npm";
+  }
+
+  #getBuildScriptName(): string {
+    if (this.#config.scriptName == null) {
+      return "build";
+    }
+    return this.#config.scriptName;
   }
 
   async describe(): Promise<string> {
@@ -61,7 +69,7 @@ export class BuildStep {
       return false;
     }
 
-    const buildCommand = `${this.#getPackageManager()} run build`;
+    const buildCommand = `${this.#getPackageManager()} run ${this.#getBuildScriptName()}`;
     logger.info(`Building source with command '${buildCommand}'`);
     const buildResult = shell.exec(buildCommand);
     if (buildResult.code !== 0) {

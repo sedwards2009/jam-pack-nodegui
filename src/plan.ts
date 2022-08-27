@@ -10,6 +10,7 @@ import { Config } from './config.js';
 import { FetchStep } from './fetchstep.js';
 import { Logger } from './logger.js';
 import { PrepareStep } from './preparestep.js';
+import { PruneStep } from './prunestep.js';
 
 
 export function createPlan(logger: Logger, configPath: string): Plan {
@@ -39,6 +40,9 @@ function parseConfig(configFile: string): Config {
   if (config.build === undefined) {
     throw new Error(`Config file doesn't have a 'build' section.`);
   }
+  if (config.prune === undefined) {
+    throw new Error(`Config file doesn't have a 'prune' section.`);
+  }
   return config;
 }
 
@@ -50,6 +54,7 @@ export class Plan {
   #prepareStep: PrepareStep = null;
   #fetchStep: FetchStep = null;
   #buildStep: BuildStep = null;
+  #pruneStep: PruneStep = null;
 
   constructor(configPath: string, config: Config) {
     this.#config = config;
@@ -60,6 +65,7 @@ export class Plan {
     this.#prepareStep = new PrepareStep(config.prepare);
     this.#fetchStep = new FetchStep(config.fetch);
     this.#buildStep = new BuildStep(config.build);
+    this.#pruneStep = new PruneStep(config.prune);
   }
 
   async preflightCheck(): Promise<boolean> {
@@ -69,7 +75,8 @@ export class Plan {
     return (
       (await this.#prepareStep.preflightCheck(this.#logger)) &&
       (await this.#fetchStep.preflightCheck(this.#logger)) &&
-      (await this.#buildStep.preflightCheck(this.#logger)));
+      (await this.#buildStep.preflightCheck(this.#logger)) &&
+      (await this.#pruneStep.preflightCheck(this.#logger)));
   }
 
   async execute(): Promise<boolean> {
@@ -95,6 +102,12 @@ export class Plan {
 
     if( ! await this.#buildStep.execute(this.#logger, this.#fetchStep)) {
       this.#logger.error("Build step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if ( ! await this.#pruneStep.execute(this.#logger, this.#fetchStep)) {
+      this.#logger.error("Prune step failed.");
       return false;
     }
     shell.cd(cwd);

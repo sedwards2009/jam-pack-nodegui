@@ -31,6 +31,14 @@ export class Logger {
     this.#log("    \u25Ba " + msg);
   }
 
+  keep(msg: string): void {
+    this.#log("        ✅ " + msg);
+  }
+
+  prune(msg: string): void {
+    this.#log("        ✂️  " + msg);
+  }
+
   #log(msg: string): void {
     console.log(msg);
   }

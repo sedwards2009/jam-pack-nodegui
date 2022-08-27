@@ -20,12 +20,23 @@ export interface BuildConfig {
   commands?: string[];
 }
 
+export interface PruneConfig {
+  patterns?: FilePattern[];
+}
+
+export interface FilePattern {
+  keep?: string[];
+  delete?: string[];
+  platform?: string;
+}
+
+export type Platform = 'macos' | 'linux' | 'windows';
+
 export interface Config {
   prepare: PrepareConfig;
   fetch: FetchConfig;
   build: BuildConfig;
-  // scrub: {
-
+  prune: PruneConfig;
   // }
   // linuxZip?: {
   // },

@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@yarnpkg/shell": "^3.2.4",
-    "minimatch": "^5.1.0"
+    "minimatch": "^5.1.0",
+    "readdirp": "^3.6.0"
   }
 }

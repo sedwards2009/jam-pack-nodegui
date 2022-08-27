@@ -5,6 +5,8 @@
  */
 import { execute } from "@yarnpkg/shell";
 import {PassThrough} from 'stream';
+import readdirp from 'readdirp';
+import shell from "shelljs";
 
 
 export class WritableBuffer extends PassThrough {
@@ -32,4 +34,16 @@ export async function executeCommandAndCaptureOutput(command: string): Promise<{
 
   const output = outputBuffer.getText();
   return {result, output};
+}
+
+export async function pruneEmptyDirectories(directoryPath: string): Promise<void> {
+  const dirEntries = await readdirp.promise(directoryPath, { type: "directories", depth: 1 });
+  for (const dirEntry of dirEntries) {
+    await pruneEmptyDirectories(dirEntry.fullPath);
+  }
+
+  const allEntries = await readdirp.promise(directoryPath, { type: "files_directories", depth: 1 });
+  if (Array.from(allEntries).length === 0) {
+    shell.rm('-rf', directoryPath);
+  }
 }

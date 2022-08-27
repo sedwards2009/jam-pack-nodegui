@@ -40,6 +40,7 @@ test("Filter filetree1", done => {
   expect(acceptList.includes("src/info.txt")).toBe(true);
 
   expect(rejectList.length).toBe(2);
+  expect(rejectList.includes(".dotfile")).toBe(true);
   expect(rejectList.includes("src/code.jest.js")).toBe(true);
 
   done();
