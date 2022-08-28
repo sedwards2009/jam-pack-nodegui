@@ -32,12 +32,14 @@ export interface FilePattern {
 
 export type Platform = 'macos' | 'linux' | 'windows';
 
+export interface ZipConfig {
+  platforms?: string[];
+}
+
 export interface Config {
   prepare: PrepareConfig;
   fetch: FetchConfig;
   build: BuildConfig;
   prune: PruneConfig;
-  // }
-  // linuxZip?: {
-  // },
+  zip?: ZipConfig;
 }

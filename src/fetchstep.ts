@@ -10,12 +10,12 @@ import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
 import { executeCommandAndCaptureOutput } from "./utils.js";
 
-const GIT_SOURCE_DIR = "git_source";
-
 
 export class FetchStep {
   #config: FetchConfig;
+  #gitSourceDirectoryName: string = "git_source";
   #gitSourceDirectory: string = null;
+  #tempDirectory: string = null;
 
   constructor(config: FetchConfig) {
     this.#config = config;
@@ -54,10 +54,11 @@ export class FetchStep {
   async execute(logger: Logger, prepareStep: PrepareStep): Promise<boolean> {
     logger.subsection("Fetch step");
 
-    this.#gitSourceDirectory = path.join(prepareStep.getTempDirectory(), GIT_SOURCE_DIR);
+    this.#tempDirectory = prepareStep.getTempDirectory();
+    this.#gitSourceDirectory = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
     shell.cd(prepareStep.getTempDirectory());
-    const command = `git clone --depth 1 ${this.#config.gitUrl} ${GIT_SOURCE_DIR}`;
+    const command = `git clone --depth 1 ${this.#config.gitUrl} ${this.#gitSourceDirectoryName}`;
     logger.info(`Cloning repository with command '${command}'`)
 
     const result = shell.exec(command);
@@ -69,7 +70,25 @@ export class FetchStep {
     return true;
   }
 
-  getSourceDirectory(): string {
+  getSourcePath(): string {
     return this.#gitSourceDirectory;
+  }
+
+  getSourceDirectoryName(): string {
+    return this.#gitSourceDirectoryName;
+  }
+
+  moveSourceDirectory(name: string): void {
+    if (name === this.#gitSourceDirectoryName) {
+      return;
+    }
+
+    const currentSourcePath = this.getSourcePath();
+    const newSourcePath = path.join(this.#tempDirectory, name);
+
+    shell.mv(currentSourcePath, newSourcePath);
+
+    this.#gitSourceDirectoryName = name;
+    this.#gitSourceDirectory = newSourcePath;
   }
 }

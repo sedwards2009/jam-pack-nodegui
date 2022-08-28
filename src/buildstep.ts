@@ -3,6 +3,8 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
+import fs from "node:fs";
+import path from "node:path";
 import shell from "shelljs";
 import { BuildConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
@@ -12,6 +14,8 @@ import { executeCommandAndCaptureOutput } from "./utils.js";
 
 export class BuildStep {
   #config: BuildConfig = null;
+  #applicationName: string = null;
+  #applicationVersion: string = null;
 
   constructor(config: BuildConfig) {
     this.#config = config;
@@ -59,7 +63,12 @@ export class BuildStep {
   async execute(logger: Logger, fetchStep: FetchStep): Promise<boolean> {
     logger.subsection("Build step");
 
-    shell.cd(fetchStep.getSourceDirectory());
+    shell.cd(fetchStep.getSourcePath());
+
+    if ( ! this.#readPackageVariables(logger, fetchStep)) {
+      return false;
+    }
+    logger.info(`Detected application name '${this.#applicationName}' version '${this.#applicationVersion}'`);
 
     const installCommand = `${this.#getPackageManager()} install`;
     logger.info(`Installing packages with command '${installCommand}'`);
@@ -76,6 +85,36 @@ export class BuildStep {
       logger.error(`Something went wrong while running command '${buildCommand}'`);
       return false;
     }
+
+    return true;
+  }
+
+  getApplicationName(): string {
+    return this.#applicationName;
+  }
+
+  getApplicationVersion(): string {
+    return this.#applicationVersion;
+  }
+
+  #readPackageVariables(logger: Logger, fetchStep: FetchStep): boolean {
+    const packagePath = path.posix.join(fetchStep.getSourcePath(), "package.json");
+
+    if ( ! fs.existsSync(packagePath)) {
+      logger.error(`Could not find 'package.json' inside ${fetchStep.getSourcePath()}`);
+      return false;
+    }
+
+    const packageJsonString = fs.readFileSync(packagePath, {encoding: "utf8"});
+    let packageJson: any = null;
+    try {
+      packageJson = JSON.parse(packageJsonString);
+    } catch (e) {
+      logger.error(`Unable to parse JSON from '${packagePath}'`);
+    }
+
+    this.#applicationName = packageJson.name;
+    this.#applicationVersion = packageJson.version;
 
     return true;
   }

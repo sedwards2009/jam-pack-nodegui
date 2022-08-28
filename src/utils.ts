@@ -7,6 +7,7 @@ import { execute } from "@yarnpkg/shell";
 import {PassThrough} from 'stream';
 import readdirp from 'readdirp';
 import shell from "shelljs";
+import { Platform } from "./config";
 
 
 export class WritableBuffer extends PassThrough {
@@ -46,4 +47,19 @@ export async function pruneEmptyDirectories(directoryPath: string): Promise<void
   if (Array.from(allEntries).length === 0) {
     shell.rm('-rf', directoryPath);
   }
+}
+
+export function getPlatform(): Platform {
+  switch(process.platform) {
+    case "win32":
+      return "windows";
+    case "win32":
+      return "windows";
+    default:
+      return "linux";
+  }
+}
+
+export function isValidPlatform(name: string): boolean {
+  return ['macos', 'linux', 'windows'].includes(name);
 }

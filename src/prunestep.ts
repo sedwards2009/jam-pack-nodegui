@@ -4,11 +4,11 @@
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
 import shell from "shelljs";
-import { Platform, PruneConfig } from "./config.js";
+import { PruneConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { FileTreeFilter } from "./filetreefilter.js";
 import { Logger } from "./logger.js";
-import { pruneEmptyDirectories } from "./utils.js";
+import { getPlatform, isValidPlatform, pruneEmptyDirectories } from "./utils.js";
 
 
 export class PruneStep {
@@ -29,7 +29,7 @@ export class PruneStep {
     for (const pattern of this.#config.patterns) {
       if (pattern.platform != null) {
         pattern.platform = pattern.platform.toLowerCase();
-        if (! ['macos', 'linux', 'windows'].includes(pattern.platform)) {
+        if (! isValidPlatform(pattern.platform)) {
           logger.checkError(`A pattern has an invalid platform value '${pattern.platform}'. Valid options are 'macos', 'linux', or 'windows'.`);
           return false;
         }
@@ -43,7 +43,7 @@ export class PruneStep {
     logger.subsection("Prune step");
     logger.info("Pruning files");
 
-    shell.cd(fetchStep.getSourceDirectory());
+    shell.cd(fetchStep.getSourcePath());
 
     const filterResultCallback = (path: string, accept: boolean): void => {
       if (accept) {
@@ -56,7 +56,7 @@ export class PruneStep {
 
     const treeFilter = new FileTreeFilter(filterResultCallback);
 
-    const platform = this.#getPlatform();
+    const platform = getPlatform();
     for (const pattern of this.#config.patterns) {
       const patternPlatform = pattern.platform ?? platform;
       if (patternPlatform === platform) {
@@ -148,16 +148,5 @@ export class PruneStep {
     await pruneEmptyDirectories(".");
 
     return true;
-  }
-
-  #getPlatform(): Platform {
-    switch(process.platform) {
-      case "win32":
-        return "windows";
-      case "win32":
-        return "windows";
-      default:
-        return "linux";
-    }
   }
 }

@@ -13,6 +13,7 @@ import { Step } from "./step.js";
 export class PrepareStep implements Step {
 
   #config: PrepareConfig = null;
+  #baseTempDirectory: string = null;
 
   constructor(config: PrepareConfig) {
     this.#config = config;
@@ -20,20 +21,23 @@ export class PrepareStep implements Step {
 
   async preflightCheck(logger: Logger): Promise<boolean> {
     logger.subsection("Prepare step");
-    logger.checkOk(`Using temporary directory '${this.getTempDirectory()}'`);
-    return true;
-  }
 
-  #getBaseTempDirectory(): string {
     let tempDir = "./ship-nodegui-tmp";
     if (this.#config != null && this.#config.tempDirectory != null) {
       tempDir = this.#config.tempDirectory;
     }
-    return tempDir;
+    if (path.isAbsolute(tempDir)) {
+      this.#baseTempDirectory = tempDir;
+    } else {
+      this.#baseTempDirectory = path.posix.join("" + shell.pwd(), tempDir);
+    }
+
+    logger.checkOk(`Using temporary directory '${this.getTempDirectory()}'`);
+    return true;
   }
 
   getTempDirectory(): string {
-    return path.join(this.#getBaseTempDirectory(), "ship-nodegui-work");
+    return path.join(this.#baseTempDirectory, "ship-nodegui-work");
   }
 
   async describe(): Promise<string> {

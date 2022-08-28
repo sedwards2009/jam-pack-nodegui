@@ -11,6 +11,7 @@ import { FetchStep } from './fetchstep.js';
 import { Logger } from './logger.js';
 import { PrepareStep } from './preparestep.js';
 import { PruneStep } from './prunestep.js';
+import { ZipStep } from './zipstep.js';
 
 
 export function createPlan(logger: Logger, configPath: string): Plan {
@@ -55,6 +56,7 @@ export class Plan {
   #fetchStep: FetchStep = null;
   #buildStep: BuildStep = null;
   #pruneStep: PruneStep = null;
+  #zipStep: ZipStep = null;
 
   constructor(configPath: string, config: Config) {
     this.#config = config;
@@ -66,17 +68,32 @@ export class Plan {
     this.#fetchStep = new FetchStep(config.fetch);
     this.#buildStep = new BuildStep(config.build);
     this.#pruneStep = new PruneStep(config.prune);
+
+    if (config.zip != null) {
+      this.#zipStep = new ZipStep(config.zip);
+    }
   }
 
   async preflightCheck(): Promise<boolean> {
     this.#logger.section(`Preflight Check`);
     this.#logger.checkOk(`Using config file '${this.#configPath}'`);
 
-    return (
-      (await this.#prepareStep.preflightCheck(this.#logger)) &&
-      (await this.#fetchStep.preflightCheck(this.#logger)) &&
-      (await this.#buildStep.preflightCheck(this.#logger)) &&
-      (await this.#pruneStep.preflightCheck(this.#logger)));
+    if ( ! await this.#prepareStep.preflightCheck(this.#logger)) {
+      return false;
+    }
+    if ( ! await this.#fetchStep.preflightCheck(this.#logger)) {
+      return false;
+    }
+    if ( ! await this.#buildStep.preflightCheck(this.#logger)) {
+      return false;
+    }
+    if ( ! await this.#pruneStep.preflightCheck(this.#logger)) {
+      return false;
+    }
+    if (this.#zipStep != null && (!await this.#zipStep.preflightCheck(this.#logger))) {
+      return false;
+    }
+    return true;
   }
 
   async execute(): Promise<boolean> {
@@ -108,6 +125,12 @@ export class Plan {
 
     if ( ! await this.#pruneStep.execute(this.#logger, this.#fetchStep)) {
       this.#logger.error("Prune step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if (this.#zipStep != null && ( ! await this.#zipStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
+        this.#buildStep))) {
       return false;
     }
     shell.cd(cwd);

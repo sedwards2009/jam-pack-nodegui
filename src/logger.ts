@@ -36,7 +36,7 @@ export class Logger {
   }
 
   prune(msg: string): void {
-    this.#log("        ✂️  " + msg);
+    this.#log("        ✂️ " + msg);
   }
 
   #log(msg: string): void {
