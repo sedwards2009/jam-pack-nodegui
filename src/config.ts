@@ -32,6 +32,10 @@ export interface FilePattern {
 
 export type Platform = 'macos' | 'linux' | 'windows';
 
+export interface AddLauncherConfig {
+  skip?: boolean;
+}
+
 export interface ZipConfig {
   platforms?: string[];
 }
@@ -41,5 +45,6 @@ export interface Config {
   fetch: FetchConfig;
   build: BuildConfig;
   prune: PruneConfig;
+  addLauncher?: AddLauncherConfig;
   zip?: ZipConfig;
 }

@@ -5,6 +5,7 @@
  */
 import fs from 'node:fs';
 import shell from "shelljs";
+import { AddLauncherStep } from './addlauncherstep.js';
 import { BuildStep } from './buildstep.js';
 import { Config } from './config.js';
 import { FetchStep } from './fetchstep.js';
@@ -20,7 +21,7 @@ export function createPlan(logger: Logger, configPath: string): Plan {
     throw new Error(`Config file not found at '${configPath}'.`);
   }
 
-  const configFile = fs.readFileSync(configPath, {encoding: 'utf8'});
+  const configFile = fs.readFileSync(configPath, {encoding: "utf8"});
 
   let config: Config = null;
   try {
@@ -56,6 +57,7 @@ export class Plan {
   #fetchStep: FetchStep = null;
   #buildStep: BuildStep = null;
   #pruneStep: PruneStep = null;
+  #addLauncherStep: AddLauncherStep = null;
   #zipStep: ZipStep = null;
 
   constructor(configPath: string, config: Config) {
@@ -68,6 +70,10 @@ export class Plan {
     this.#fetchStep = new FetchStep(config.fetch);
     this.#buildStep = new BuildStep(config.build);
     this.#pruneStep = new PruneStep(config.prune);
+
+    if (config.addLauncher != null) {
+      this.#addLauncherStep = new AddLauncherStep(config.addLauncher);
+    }
 
     if (config.zip != null) {
       this.#zipStep = new ZipStep(config.zip);
@@ -90,7 +96,10 @@ export class Plan {
     if ( ! await this.#pruneStep.preflightCheck(this.#logger)) {
       return false;
     }
-    if (this.#zipStep != null && (!await this.#zipStep.preflightCheck(this.#logger))) {
+    if (this.#addLauncherStep != null && ( ! await this.#addLauncherStep.preflightCheck(this.#logger))) {
+      return false;
+    }
+    if (this.#zipStep != null && ( ! await this.#zipStep.preflightCheck(this.#logger))) {
       return false;
     }
     return true;
@@ -129,8 +138,16 @@ export class Plan {
     }
     shell.cd(cwd);
 
+    if (this.#addLauncherStep != null && ( ! await this.#addLauncherStep.execute(this.#logger, this.#fetchStep,
+        this.#buildStep))) {
+      this.#logger.error("Add Launcher step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
     if (this.#zipStep != null && ( ! await this.#zipStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
         this.#buildStep))) {
+      this.#logger.error("Zip step failed.");
       return false;
     }
     shell.cd(cwd);
