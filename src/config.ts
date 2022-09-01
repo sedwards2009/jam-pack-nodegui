@@ -34,6 +34,7 @@ export type Platform = 'macos' | 'linux' | 'windows';
 
 export interface AddLauncherConfig {
   skip?: boolean;
+  jsEntryPoint: string;
 }
 
 export interface ZipConfig {

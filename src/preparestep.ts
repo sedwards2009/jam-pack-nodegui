@@ -22,7 +22,7 @@ export class PrepareStep implements Step {
   async preflightCheck(logger: Logger): Promise<boolean> {
     logger.subsection("Prepare step");
 
-    let tempDir = "./ship-nodegui-tmp";
+    let tempDir = "./tmp-jam-pack-nodegui";
     if (this.#config != null && this.#config.tempDirectory != null) {
       tempDir = this.#config.tempDirectory;
     }
@@ -37,7 +37,7 @@ export class PrepareStep implements Step {
   }
 
   getTempDirectory(): string {
-    return path.join(this.#baseTempDirectory, "ship-nodegui-work");
+    return path.join(this.#baseTempDirectory, "jam-pack-nodegui-work");
   }
 
   async describe(): Promise<string> {

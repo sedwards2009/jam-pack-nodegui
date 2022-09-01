@@ -17,8 +17,8 @@ import { ZipStep } from './zipstep.js';
 
 export function createPlan(logger: Logger, configPath: string): Plan {
   if ( ! fs.existsSync(configPath)) {
-    logger.error(`Config file not found at '${configPath}'.`);
-    throw new Error(`Config file not found at '${configPath}'.`);
+    logger.error(`Configuration file not found at '${configPath}'.`);
+    throw new Error(`Configuration file not found at '${configPath}'.`);
   }
 
   const configFile = fs.readFileSync(configPath, {encoding: "utf8"});
@@ -27,7 +27,7 @@ export function createPlan(logger: Logger, configPath: string): Plan {
   try {
     config = parseConfig(configFile);
   } catch(e) {
-    throw new Error(`An error occurred while parsing JSON config at '${configPath}'. ${e}`);
+    throw new Error(`An error occurred while parsing JSON configuration at '${configPath}'. ${e}`);
   }
   return new Plan(configPath, <Config> config);
 }
@@ -37,13 +37,13 @@ function parseConfig(configFile: string): Config {
   config = JSON.parse(configFile);
 
   if (config.fetch === undefined) {
-    throw new Error(`Config file doesn't have a 'fetch' section.`);
+    throw new Error(`Configuration file doesn't have a 'fetch' section.`);
   }
   if (config.build === undefined) {
-    throw new Error(`Config file doesn't have a 'build' section.`);
+    throw new Error(`Configuration file doesn't have a 'build' section.`);
   }
   if (config.prune === undefined) {
-    throw new Error(`Config file doesn't have a 'prune' section.`);
+    throw new Error(`Configuration file doesn't have a 'prune' section.`);
   }
   return config;
 }
@@ -82,7 +82,7 @@ export class Plan {
 
   async preflightCheck(): Promise<boolean> {
     this.#logger.section(`Preflight Check`);
-    this.#logger.checkOk(`Using config file '${this.#configPath}'`);
+    this.#logger.checkOk(`Using configuration file '${this.#configPath}'`);
 
     if ( ! await this.#prepareStep.preflightCheck(this.#logger)) {
       return false;

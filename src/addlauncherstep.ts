@@ -29,7 +29,13 @@ export class AddLauncherStep {
       return true;
     }
     logger.subsection("Add Launcher step");
-    logger.checkOk("Will use default application name as launcher executable name.");
+    logger.checkOk("Using default application name as launcher executable name.");
+
+    if (this.#config.jsEntryPoint == null) {
+      logger.checkError(`No 'jsEntryPoint' field was found in the configuration file, 'addLauncher' section.`);
+      return false;
+    }
+    logger.checkOk(`Using '${this.#config.jsEntryPoint}' as the JavaScript entry point.`);
 
     return true;
   }
@@ -40,6 +46,12 @@ export class AddLauncherStep {
       return true;
     }
     logger.subsection("Add Launcher step");
+    const jsEntryPoint = this.#config.jsEntryPoint;
+
+    if ( ! shell.test("-f", path.join(fetchStep.getSourcePath(), jsEntryPoint))) {
+      logger.error(`JavaScript entry point file '${jsEntryPoint}' can't be found.`);
+      return false;
+    }
 
     const platform = getPlatform();
     const extension = platform === "windows" ? ".exe" : "";
@@ -58,6 +70,14 @@ export class AddLauncherStep {
     }[platform];
 
     const launcherExe = fs.readFileSync(path.join(__dirname, "../resources/launcher/", launcherName));
+
+    // Write the jsEntryPoint into launcher executable itself.
+    const entryPointByteOffset = launcherExe.indexOf("4f8177788c5a4086ac9f18d8639b7717"); // Magic string.
+    for (let i=0; i<jsEntryPoint.length; i++) {
+      launcherExe[entryPointByteOffset+i] = jsEntryPoint.codePointAt(i);
+    }
+    launcherExe[entryPointByteOffset+jsEntryPoint.length] = 0;
+
     fs.writeFileSync(destPath, launcherExe);
 
     if (platform === "linux" || platform === "macos") {
