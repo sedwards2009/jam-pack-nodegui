@@ -8,10 +8,12 @@ import shell from "shelljs";
 import { AddLauncherStep } from './addlauncherstep.js';
 import { BuildStep } from './buildstep.js';
 import { Config } from './config.js';
+import { DebianStep } from './debianstep.js';
 import { FetchStep } from './fetchstep.js';
 import { Logger } from './logger.js';
 import { PrepareStep } from './preparestep.js';
 import { PruneStep } from './prunestep.js';
+import { getPlatform } from './utils.js';
 import { ZipStep } from './zipstep.js';
 
 
@@ -59,6 +61,7 @@ export class Plan {
   #pruneStep: PruneStep = null;
   #addLauncherStep: AddLauncherStep = null;
   #zipStep: ZipStep = null;
+  #debianStep: DebianStep = null;
 
   constructor(configPath: string, config: Config) {
     this.#config = config;
@@ -77,6 +80,10 @@ export class Plan {
 
     if (config.zip != null) {
       this.#zipStep = new ZipStep(config.zip);
+    }
+
+    if (getPlatform() === "linux" && config.debian != null) {
+      this.#debianStep = new DebianStep(config.debian);
     }
   }
 
@@ -100,6 +107,9 @@ export class Plan {
       return false;
     }
     if (this.#zipStep != null && ( ! await this.#zipStep.preflightCheck(this.#logger))) {
+      return false;
+    }
+    if (this.#debianStep != null && ( ! await this.#debianStep.preflightCheck(this.#logger))) {
       return false;
     }
     return true;
@@ -148,6 +158,12 @@ export class Plan {
     if (this.#zipStep != null && ( ! await this.#zipStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
         this.#buildStep))) {
       this.#logger.error("Zip step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep))) {
+      this.#logger.error("Debian step failed.");
       return false;
     }
     shell.cd(cwd);

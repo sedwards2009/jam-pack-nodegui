@@ -28,6 +28,8 @@
   "dependencies": {
     "@yarnpkg/shell": "^3.2.4",
     "minimatch": "^5.1.0",
-    "readdirp": "^3.6.0"
-  }
+    "readdirp": "^3.6.0",
+    "recursive-copy": "^2.0.14"
+  },
+  "packageManager": "yarn@3.2.3"
 }

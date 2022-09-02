@@ -10,7 +10,7 @@ import { ZipConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
-import { executeCommandAndCaptureOutput, getPlatform, isValidPlatform } from "./utils.js";
+import { checkWhichCommand, getPlatform, isValidPlatform } from "./utils.js";
 
 
 export class ZipStep {
@@ -41,13 +41,10 @@ export class ZipStep {
 
     logger.subsection("Zip step");
 
-    const {result, output } = await executeCommandAndCaptureOutput('which zip');
-    if (result === 0) {
-      logger.checkOk(`Found 'zip' command at: ${output.trim()}`);
-    } else {
-      logger.checkError(`Unable to run 'which zip'. Command reported: ${output}`);
+    if (! await checkWhichCommand("zip", logger)) {
       return false;
     }
+
     return true;
   }
 

@@ -41,6 +41,11 @@ export interface ZipConfig {
   platforms?: string[];
 }
 
+export interface DebianConfig {
+  skip?: boolean;
+  controlFields?: {[key: string]: string};
+}
+
 export interface Config {
   prepare: PrepareConfig;
   fetch: FetchConfig;
@@ -48,4 +53,5 @@ export interface Config {
   prune: PruneConfig;
   addLauncher?: AddLauncherConfig;
   zip?: ZipConfig;
+  debian?: DebianConfig;
 }

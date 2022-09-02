@@ -8,6 +8,7 @@ import {PassThrough} from 'stream';
 import readdirp from 'readdirp';
 import shell from "shelljs";
 import { Platform } from "./config";
+import { Logger } from "./logger";
 
 
 export class WritableBuffer extends PassThrough {
@@ -62,4 +63,15 @@ export function getPlatform(): Platform {
 
 export function isValidPlatform(name: string): boolean {
   return ['macos', 'linux', 'windows'].includes(name);
+}
+
+export async function checkWhichCommand(commandName: string, logger: Logger): Promise<boolean> {
+  const {result, output } = await executeCommandAndCaptureOutput(`which ${commandName}`);
+  if (result === 0) {
+    logger.checkOk(`Found '${commandName}' command at: ${output.trim()}`);
+    return true;
+  } else {
+    logger.checkError(`Unable to run 'which ${commandName}'. Command reported: ${output}`);
+    return false;
+  }
 }
