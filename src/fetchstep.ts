@@ -14,7 +14,7 @@ import { executeCommandAndCaptureOutput } from "./utils.js";
 export class FetchStep {
   #config: FetchConfig;
   #gitSourceDirectoryName: string = "git_source";
-  #gitSourceDirectory: string = null;
+  #gitSourcePath: string = null;
   #tempDirectory: string = null;
 
   constructor(config: FetchConfig) {
@@ -50,7 +50,7 @@ export class FetchStep {
     logger.subsection("Fetch step");
 
     this.#tempDirectory = prepareStep.getTempDirectory();
-    this.#gitSourceDirectory = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
+    this.#gitSourcePath = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
     shell.cd(prepareStep.getTempDirectory());
     const command = `git clone --depth 1 ${this.#config.gitUrl} ${this.#gitSourceDirectoryName}`;
@@ -66,7 +66,7 @@ export class FetchStep {
   }
 
   getSourcePath(): string {
-    return this.#gitSourceDirectory;
+    return this.#gitSourcePath;
   }
 
   getSourceDirectoryName(): string {
@@ -89,6 +89,6 @@ export class FetchStep {
     shell.mv(currentSourcePath, newSourcePath);
 
     this.#gitSourceDirectoryName = name;
-    this.#gitSourceDirectory = newSourcePath;
+    this.#gitSourcePath = newSourcePath;
   }
 }

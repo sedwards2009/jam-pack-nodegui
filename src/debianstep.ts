@@ -14,6 +14,7 @@ import { DebianConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
+import { PruneStep } from './prunestep.js';
 import { checkWhichCommand, getPlatform } from "./utils.js";
 
 
@@ -49,7 +50,7 @@ export class DebianStep {
     return true;
   }
 
-  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep): Promise<boolean> {
+  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep, pruneStep: PruneStep): Promise<boolean> {
     if (this.#isSkip()) {
       logger.subsection("Debian step (skipping)");
       return true;
@@ -84,6 +85,7 @@ export class DebianStep {
     prepareStep.addVariables(env);
     fetchStep.addVariables(env);
     buildStep.addVariables(env);
+    pruneStep.addVariables(env);
     this.addVariables(env);
     if ( ! await this.#commandList.execute(logger, env)) {
       return false;

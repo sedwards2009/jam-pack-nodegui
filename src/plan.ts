@@ -100,7 +100,7 @@ export class Plan {
     if ( ! await this.#buildStep.preflightCheck(this.#logger)) {
       return false;
     }
-    if ( ! await this.#pruneStep.preflightCheck(this.#logger)) {
+    if ( ! await this.#pruneStep.preflightCheck(this.#logger, this.#prepareStep)) {
       return false;
     }
     if (this.#addLauncherStep != null && ( ! await this.#addLauncherStep.preflightCheck(this.#logger))) {
@@ -162,7 +162,7 @@ export class Plan {
     }
     shell.cd(cwd);
 
-    if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep))) {
+    if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep, this.#pruneStep))) {
       this.#logger.error("Debian step failed.");
       return false;
     }

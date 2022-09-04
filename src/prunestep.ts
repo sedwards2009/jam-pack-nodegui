@@ -3,23 +3,30 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
+import path from "node:path";
 import shell from "shelljs";
 import { PruneConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { FileTreeFilter } from "./filetreefilter.js";
 import { Logger } from "./logger.js";
+import { PrepareStep } from "./preparestep.js";
 import { getPlatform, isValidPlatform, pruneEmptyDirectories } from "./utils.js";
+
+
+const TRASH_DIR_NAME = "trash";
 
 
 export class PruneStep {
   #config: PruneConfig;
+  #trashPath: string;
 
   constructor(config: PruneConfig) {
     this.#config = config;
   }
 
-  async preflightCheck(logger: Logger): Promise<boolean> {
+  async preflightCheck(logger: Logger, prepareStep: PrepareStep): Promise<boolean> {
     logger.subsection("Prune step");
+    this.#trashPath = path.join(prepareStep.getTempDirectory(), TRASH_DIR_NAME);
 
     if (this.#config.patterns == null) {
       logger.checkError(`The 'prune' section in the config file doesn't contain a 'patterns' field.`);
@@ -36,6 +43,8 @@ export class PruneStep {
       }
     }
 
+    logger.checkOk(`Using directory '${this.getTrashPath()}' to hold pruned files.`);
+
     return true;
   }
 
@@ -45,12 +54,14 @@ export class PruneStep {
 
     shell.cd(fetchStep.getSourcePath());
 
-    const filterResultCallback = (path: string, accept: boolean): void => {
+    const filterResultCallback = (resultPath: string, accept: boolean): void => {
       if (accept) {
-        logger.keep(`Keeping '${path}'`);
+        logger.keep(`Keeping '${resultPath}'`);
       } else {
-        logger.prune(`Pruning '${path}'`);
-        shell.rm('-f', path);
+        logger.prune(`Pruning '${resultPath}'`);
+        const targetPath = path.join(this.#trashPath, resultPath);
+        shell.mkdir("-p", path.dirname(targetPath));
+        shell.mv(resultPath, targetPath);
       }
     };
 
@@ -149,4 +160,12 @@ export class PruneStep {
 
     return true;
   }
+
+  getTrashPath(): string {
+    return this.#trashPath;
+  }
+
+  addVariables(variables: {[key: string]: string}): void {
+    variables["pruneStep_trashPath"] = this.getTrashPath();
+  }  
 }
