@@ -9,6 +9,7 @@ import copy from 'recursive-copy';
 import shell from "shelljs";
 
 import { BuildStep } from "./buildstep.js";
+import { CommandList } from './commandlist.js';
 import { DebianConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
@@ -18,9 +19,12 @@ import { checkWhichCommand, getPlatform } from "./utils.js";
 
 export class DebianStep {
   #config: DebianConfig;
+  #commandList: CommandList;
+  #debianSourceDirectory = "";
 
   constructor(config: DebianConfig) {
     this.#config = config;
+    this.#commandList = new CommandList(config.prePack);
   }
 
   #isSkip(): boolean {
@@ -36,6 +40,10 @@ export class DebianStep {
 
     if (! await checkWhichCommand("dpkg-deb", logger)) {
       return false;
+    }
+
+    if ( ! await this.#commandList.preflightCheck(logger, "prePack")) {
+      return false
     }
 
     return true;
@@ -70,6 +78,17 @@ export class DebianStep {
     fs.writeFileSync(path.join(debianDir, "control"), this.#getControlFile(buildStep), {encoding: "utf-8"});
     fs.writeFileSync(path.join(debianDir, "conffiles"), "", {encoding: "utf-8"});
 
+    this.#debianSourceDirectory = path.join(prepareStep.getTempDirectory(), DEBIAN_SOURCE_NAME);
+
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    fetchStep.addVariables(env);
+    buildStep.addVariables(env);
+    this.addVariables(env);
+    if ( ! await this.#commandList.execute(logger, env)) {
+      return false;
+    }
+
     shell.cd(prepareStep.getTempDirectory());
     const command = `dpkg-deb --root-owner-group --build ${DEBIAN_SOURCE_NAME}`;
     const result = shell.exec(command);
@@ -103,5 +122,13 @@ export class DebianStep {
       result.push(`${key}: ${fields[key]}`);
     }
     return result.join("\n") + "\n";
+  }
+
+  getDebianSourceDirectory(): string {
+    return this.#debianSourceDirectory;
+  }
+
+  addVariables(variables: {[key: string]: string}): void {
+    variables["debianStep.debianSourceDirectory"] = this.getDebianSourceDirectory();
   }
 }

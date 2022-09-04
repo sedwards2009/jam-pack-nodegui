@@ -3,7 +3,7 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import { execute } from "@yarnpkg/shell";
+import { execute, UserOptions } from "@yarnpkg/shell";
 import {PassThrough} from 'stream';
 import readdirp from 'readdirp';
 import shell from "shelljs";
@@ -26,13 +26,18 @@ export class WritableBuffer extends PassThrough {
   }
 }
 
-export async function executeCommandAndCaptureOutput(command: string): Promise<{result: number, output: string }> {
+export async function executeCommandAndCaptureOutput(command: string, variables?: {[key:string]: string}): Promise<{result: number, output: string }> {
   const outputBuffer = new WritableBuffer();
-  const result = await execute(command, [], {
+
+  const options: Partial<UserOptions> = {
     stdin: null,
     stdout: outputBuffer,
     stderr: outputBuffer
-  });
+  };
+  if (variables != null) {
+    options.variables = variables;
+  }
+  const result = await execute(command, [], options);
 
   const output = outputBuffer.getText();
   return {result, output};

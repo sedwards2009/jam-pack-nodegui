@@ -24,11 +24,6 @@ export class FetchStep {
   async preflightCheck(logger: Logger): Promise<boolean> {
     logger.subsection("Fetch step");
     const gitUrl = this.#config.gitUrl;
-    const commands = this.#config.commands;
-    if (gitUrl == null && commands == null) {
-      logger.checkError(`Neither 'gitUrl' nor 'commands' were specified in the 'build' block.`);
-      return false;
-    }
     if (gitUrl != null) {
       logger.checkOk(`Will fetch project from git repository at '${gitUrl}'`);
 
@@ -76,6 +71,11 @@ export class FetchStep {
 
   getSourceDirectoryName(): string {
     return this.#gitSourceDirectoryName;
+  }
+
+  addVariables(variables: {[key: string]: string}): void {
+    variables["fetchStep_sourcePath"] = this.getSourcePath();
+    variables["fetchStep_sourceDirectoryName"] = this.getSourceDirectoryName();
   }
 
   moveSourceDirectory(name: string): void {

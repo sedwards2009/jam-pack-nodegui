@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
 function execute(program: Command, action: Action): void {
   const options = program.opts();
-  const configPath = options.config ?? "ship-nodegui.json";
+  const configPath = options.config ?? "test-config.json";
 
   const logger = new Logger();
   let plan: Plan = null;

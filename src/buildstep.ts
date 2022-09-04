@@ -97,6 +97,11 @@ export class BuildStep {
     return this.#applicationVersion;
   }
 
+  addVariables(variables: {[key: string]: string}): void {
+    variables["buildStep_applicationName"] = this.getApplicationName();
+    variables["buildStep_applicationVersion"] = this.getApplicationVersion();
+  }
+
   #readPackageVariables(logger: Logger, fetchStep: FetchStep): boolean {
     const packagePath = path.posix.join(fetchStep.getSourcePath(), "package.json");
 

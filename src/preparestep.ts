@@ -56,4 +56,8 @@ export class PrepareStep implements Step {
     logger.checkOk(`Created temporary work directory '${tempDir}'`);
     return true;
   }
+
+  addVariables(variables: {[key: string]: string}): void {
+    variables["prepareStep_tempDirectory"] = this.getTempDirectory();
+  }
 }

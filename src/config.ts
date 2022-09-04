@@ -4,6 +4,18 @@
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
 
+export type Platform = 'macos' | 'linux' | 'windows';
+
+export interface Command {
+  platform: Platform;
+  command: string;
+}
+
+export type CommandLine = string;
+
+export type Commands = (Command | CommandLine)[];
+
+
 export interface PrepareConfig {
   tempDirectory?: string;
 }
@@ -11,17 +23,19 @@ export interface PrepareConfig {
 export interface FetchConfig {
   gitUrl?: string;
   gitBranch?: string;
-  commands?: string[];
+  postFetch?: Commands; // TODO
 }
 
 export interface BuildConfig {
+  skip?: boolean; // TODO
   packageManager?: string;
   scriptName?: string;
-  commands?: string[];
+  postBuild?: Commands; // TODO
 }
 
 export interface PruneConfig {
   patterns?: FilePattern[];
+  postPrune?: Commands;  // TODO
 }
 
 export interface FilePattern {
@@ -30,20 +44,21 @@ export interface FilePattern {
   platform?: string;
 }
 
-export type Platform = 'macos' | 'linux' | 'windows';
-
 export interface AddLauncherConfig {
   skip?: boolean;
   jsEntryPoint: string;
 }
 
 export interface ZipConfig {
+  skip?: boolean;   // TODO
   platforms?: string[];
+  prePack?: Commands;
 }
 
 export interface DebianConfig {
   skip?: boolean;
   controlFields?: {[key: string]: string};
+  prePack?: Commands;
 }
 
 export interface Config {

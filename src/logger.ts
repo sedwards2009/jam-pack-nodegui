@@ -6,6 +6,10 @@
 
 export class Logger {
 
+  logText(text: string): void {
+    this.#log(text);
+  }
+
   info(msg: string): void {
     this.#log("        [i] " + msg);
   }
@@ -20,6 +24,13 @@ export class Logger {
 
   checkError(msg: string): void {
     this.#log("        ❌ " + msg);
+  }
+
+  checkListOK(name: string, list: string[]): void {
+    this.#log(`        ✅ '${name}' commands:`);
+    for (const item of list) {
+      this.#log("          \u2022 " + item);
+    }
   }
 
   section(msg: string): void {
@@ -40,7 +51,8 @@ export class Logger {
   }
 
   #log(msg: string): void {
-    console.log(msg);
+    process.stdout.write(msg);
+    process.stdout.write("\n");
   }
 }
 
