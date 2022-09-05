@@ -21,7 +21,16 @@ export class BuildStep {
     this.#config = config;
   }
 
+  #isSkip(): boolean {
+    return this.#config.skip;
+  }
+
   async preflightCheck(logger: Logger): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Build step (skipping)");
+      return true;
+    }
+
     logger.subsection("Build step");
     const manager = this.#getPackageManager();
     if (manager !== "npm" && manager !== "yarn") {
@@ -61,6 +70,10 @@ export class BuildStep {
   }
 
   async execute(logger: Logger, fetchStep: FetchStep): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Build step (skipping)");
+      return true;
+    }
     logger.subsection("Build step");
 
     shell.cd(fetchStep.getSourcePath());

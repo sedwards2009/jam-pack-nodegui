@@ -27,7 +27,7 @@ export interface FetchConfig {
 }
 
 export interface BuildConfig {
-  skip?: boolean; // TODO
+  skip?: boolean;
   packageManager?: string;
   scriptName?: string;
   postBuild?: Commands; // TODO
