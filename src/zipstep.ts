@@ -23,7 +23,16 @@ export class ZipStep {
     this.#config = config;
   }
 
+  #isSkip(): boolean {
+    return this.#config.skip;
+  }
+
   async preflightCheck(logger: Logger): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Zip step (skipping)");
+      return true;
+    }
+
     if (this.#config.platforms != null) {
       for (const platform of this.#config.platforms) {
         if (! isValidPlatform(platform)) {
@@ -56,6 +65,11 @@ export class ZipStep {
   }
 
   async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Zip step (skipping)");
+      return true;
+    }
+
     if ( ! this.#isEnabled()) {
       logger.subsection("Zip step (skipping, not enabled for this platform)");
       return true;
