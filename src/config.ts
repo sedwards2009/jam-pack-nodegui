@@ -50,7 +50,7 @@ export interface AddLauncherConfig {
 }
 
 export interface ZipConfig {
-  skip?: boolean;   // TODO
+  skip?: boolean;
   platforms?: string[];
   prePack?: Commands;
 }

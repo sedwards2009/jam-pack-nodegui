@@ -8,7 +8,7 @@
         "noImplicitAny": false,
         "noImplicitThis": true,
         "noImplicitReturns": true,
-        "outDir": "dist",
+        "outDir": "build",
         "removeComments": false,
         "rootDir": "src",
         "sourceMap": true,
