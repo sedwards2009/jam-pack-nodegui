@@ -44,24 +44,23 @@ export class FileTreeFilter {
   }
 
   #isAccept(path: string): boolean {
+    let result = false;
     for (const patternSet of this.#patternSets) {
-      if (this.#matchPatternSet(path, patternSet)) {
-        return true;
-      }
+      result = this.#matchPatternSet(path, patternSet, result);
     }
-    return false;
+    return result;
   }
 
-  #matchPatternSet(path: string, patternSet: PatternSet): boolean {
-    let isMatch = false;
+  #matchPatternSet(path: string, patternSet: PatternSet, startResult: boolean): boolean {
+    let result = startResult;
     for (const matcher of patternSet.acceptMatchers) {
       if (matcher.match(path)) {
-        isMatch = true;
+        result = true;
         break;
       }
     }
 
-    if ( ! isMatch) {
+    if ( ! result) {
       return false;
     }
 

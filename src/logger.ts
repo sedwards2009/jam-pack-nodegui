@@ -51,7 +51,7 @@ export class Logger {
   }
 
   #log(msg: string): void {
-    process.stdout.write(msg);
+    process.stdout.write("" +msg);
     process.stdout.write("\n");
   }
 }

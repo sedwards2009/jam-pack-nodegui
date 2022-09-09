@@ -22,6 +22,8 @@ test("Filter filetree1", done => {
   filter.addPattern(["README.md", "logo.png"], []);
   filter.addPattern(["src/*.js"], ["src/*.jest.js"]);
   filter.addPattern(["**/info.txt"], []);
+  filter.addPattern(["**/note.txt"], []);
+  filter.addPattern([], ["**/note.txt"]);
 
   shell.cd("fixtures/filetree1");
   filter.run(".");
@@ -39,9 +41,10 @@ test("Filter filetree1", done => {
   expect(acceptList.includes("info.txt")).toBe(true);
   expect(acceptList.includes("src/info.txt")).toBe(true);
 
-  expect(rejectList.length).toBe(2);
+  expect(rejectList.length).toBe(3);
   expect(rejectList.includes(".dotfile")).toBe(true);
   expect(rejectList.includes("src/code.jest.js")).toBe(true);
+  expect(rejectList.includes("note.txt")).toBe(true);
 
   done();
 });

@@ -41,7 +41,7 @@ export interface PruneConfig {
 export interface FilePattern {
   keep?: string[];
   delete?: string[];
-  platform?: string;
+  platform?: string | string[];
 }
 
 export interface AddLauncherConfig {

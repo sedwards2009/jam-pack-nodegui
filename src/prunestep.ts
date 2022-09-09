@@ -35,10 +35,16 @@ export class PruneStep {
 
     for (const pattern of this.#config.patterns) {
       if (pattern.platform != null) {
-        pattern.platform = pattern.platform.toLowerCase();
-        if (! isValidPlatform(pattern.platform)) {
-          logger.checkError(`A pattern has an invalid platform value '${pattern.platform}'. Valid options are 'macos', 'linux', or 'windows'.`);
-          return false;
+        let platforms = pattern.platform;
+        if ( ! Array.isArray(platforms)) {
+          platforms = [platforms];
+        }
+        pattern.platform = platforms.map(p => p.toLowerCase());
+        for (const platform of platforms) {
+          if (! isValidPlatform(platform)) {
+            logger.checkError(`A pattern has an invalid platform value '${platform}'. Valid options are 'macos', 'linux', or 'windows'.`);
+            return false;
+          }
         }
       }
     }
@@ -69,8 +75,11 @@ export class PruneStep {
 
     const platform = getPlatform();
     for (const pattern of this.#config.patterns) {
-      const patternPlatform = pattern.platform ?? platform;
-      if (patternPlatform === platform) {
+      let patternPlatform = pattern.platform ?? platform;
+      if ( ! Array.isArray(patternPlatform)) {
+        patternPlatform = [patternPlatform];
+      }
+      if (patternPlatform.includes(platform)) {
         const keepList = pattern.keep ?? [];
         const deleteList = pattern.delete ?? [];
         treeFilter.addPattern(keepList, deleteList)
