@@ -6,19 +6,24 @@
 import fs from "node:fs";
 import path from "node:path";
 import shell from "shelljs";
+
 import { BuildConfig } from "./config.js";
+import { CommandList } from './commandlist.js';
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
+import { PrepareStep } from "./preparestep.js";
 import { executeCommandAndCaptureOutput } from "./utils.js";
 
 
 export class BuildStep {
   #config: BuildConfig = null;
+  #commandList: CommandList;
   #applicationName: string = null;
   #applicationVersion: string = null;
 
   constructor(config: BuildConfig) {
     this.#config = config;
+    this.#commandList = new CommandList(config.postBuild);
   }
 
   #isSkip(): boolean {
@@ -48,6 +53,10 @@ export class BuildStep {
     }
     logger.checkOk(`Using package script '${this.#getBuildScriptName()}' to build`);
 
+    if ( ! await this.#commandList.preflightCheck(logger, "postBuild")) {
+      return false
+    }
+
     return true;
   }
 
@@ -69,7 +78,7 @@ export class BuildStep {
     throw new Error("Method not implemented.");
   }
 
-  async execute(logger: Logger, fetchStep: FetchStep): Promise<boolean> {
+  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep): Promise<boolean> {
     if (this.#isSkip()) {
       logger.subsection("Build step (skipping)");
       return true;
@@ -96,6 +105,15 @@ export class BuildStep {
     const buildResult = shell.exec(buildCommand);
     if (buildResult.code !== 0) {
       logger.error(`Something went wrong while running command '${buildCommand}'`);
+      return false;
+    }
+
+    shell.cd(prepareStep.getTempDirectory());
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    fetchStep.addVariables(env);
+    this.addVariables(env);
+    if ( ! await this.#commandList.execute(logger, env)) {
       return false;
     }
 

@@ -176,5 +176,5 @@ export class PruneStep {
 
   addVariables(variables: {[key: string]: string}): void {
     variables["pruneStep_trashPath"] = this.getTrashPath();
-  }  
+  }
 }

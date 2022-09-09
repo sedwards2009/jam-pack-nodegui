@@ -25,13 +25,22 @@ export class CommandList {
         continue;
       }
       const command = <Command> item;
-      if ( ! isValidPlatform(command.platform)) {
-        logger.checkError(`Invalid 'platform' value '${command.platform}' in section '${commandsName}'.`);
-        return false;
-      }
-      if (command.command == null) {
-        logger.checkError(`Invalid or missing 'command' field value in '${command.platform}' in section '${commandsName}'.`);
-        return false;
+      if (command.platform != null) {
+        let platforms = command.platform;
+        if ( ! Array.isArray(platforms)) {
+          platforms = [platforms];
+        }
+        command.platform = platforms.map(p => p.toLowerCase());
+        for (const platform of platforms) {
+          if ( ! isValidPlatform(platform)) {
+            logger.checkError(`Invalid 'platform' value '${command.platform}' in section '${commandsName}'.`);
+            return false;
+          }
+        }
+        if (command.command == null) {
+          logger.checkError(`Invalid or missing 'command' field value in '${command.platform}' in section '${commandsName}'.`);
+          return false;
+        }
       }
     }
 

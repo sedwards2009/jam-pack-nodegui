@@ -7,14 +7,13 @@
 export type Platform = 'macos' | 'linux' | 'windows';
 
 export interface Command {
-  platform: Platform;
+  platform?: string | string[];
   command: string;
 }
 
 export type CommandLine = string;
 
 export type Commands = (Command | CommandLine)[];
-
 
 export interface PrepareConfig {
   tempDirectory?: string;
@@ -30,7 +29,7 @@ export interface BuildConfig {
   skip?: boolean;
   packageManager?: string;
   scriptName?: string;
-  postBuild?: Commands; // TODO
+  postBuild?: Commands;
 }
 
 export interface PruneConfig {

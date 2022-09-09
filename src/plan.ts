@@ -136,7 +136,7 @@ export class Plan {
     }
     shell.cd(cwd);
 
-    if( ! await this.#buildStep.execute(this.#logger, this.#fetchStep)) {
+    if( ! await this.#buildStep.execute(this.#logger, this.#prepareStep, this.#fetchStep)) {
       this.#logger.error("Build step failed.");
       return false;
     }
