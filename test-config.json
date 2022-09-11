@@ -1,0 +1,43 @@
+{
+  "fetch": {
+    "gitUrl": "git@github.com:sedwards2009/test-nodegui-app.git"
+  },
+  "build": {
+    "packageManager": "npm"
+  },
+  "prune": {
+    "patterns": [
+      {
+        "keep": [
+          "LICENSE",
+          "README.md",
+          "package.json",
+          "dist/*.js"
+        ]
+      }
+    ]
+  },
+  "addLauncher": {
+    "jsEntryPoint": "dist/main.js"
+  },
+  "zip": {
+    "platforms": ["linux"]
+  },
+  "debian": {
+    "controlFields": {
+      "Depends": "libx11-6",
+      "Provides": "x-terminal-emulator",
+      "Section": "x11",
+      "Maintainer": "Simon Edwards",
+      "Priority": "optional",
+      "Description": "The swiss army chainsaw of terminal emulators"
+    },
+    "prePack": [
+      "echo \"Hello ${buildStep_applicationName} v${buildStep_applicationVersion}\"",
+      {
+        "platform": "windows",
+        "command": "echo \"Hello windows\""
+      }
+    ]
+  }
+}
