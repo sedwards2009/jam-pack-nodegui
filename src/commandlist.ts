@@ -65,6 +65,10 @@ export class CommandList {
   }
 
   async execute(logger: Logger, variables: {[key: string]: string}): Promise<boolean> {
+    if (this.#commands == null) {
+      return true;
+    }
+
     for (const commandLine of this.#filteredCommands()) {
       logger.info(`Running '${commandLine}'`);
       const {result, output} = await executeCommandAndCaptureOutput(commandLine, variables);

@@ -87,7 +87,6 @@ export class PruneStep {
     }
 
     const nodeguiAcceptList = [
-      "node_modules/@nodegui/qode/binaries/*",
       "node_modules/@nodegui/qode/package.json",
       "node_modules/@nodegui/nodegui/package.json",
       "node_modules/@nodegui/nodegui/dist/**/*.js",
@@ -115,6 +114,7 @@ export class PruneStep {
     ];
 
     if (platform === "linux") {
+      nodeguiAcceptList.push("node_modules/@nodegui/qode/binaries/*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
 
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt5Core.so*");
@@ -148,6 +148,26 @@ export class PruneStep {
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libcupsprintersupport.so");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqxcb-egl-integration.so");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libqxcb-glx-integration.so");
+    }
+
+    if (platform === "windows") {
+      nodeguiAcceptList.push("node_modules/@nodegui/qode/binaries/*.exe");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
+
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/D3Dcompiler_47.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libEGL.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libGLESv2.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt5Core.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt5Gui.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt5Svg.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt5Widgets.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qsvgicon.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qwindows.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qwindowsvistastyle.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qgif.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qico.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qjpeg.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qsvg.dll");
     }
 
     const nodeguiDeleteList = [

@@ -71,12 +71,18 @@ export class AddLauncherStep {
 
     const launcherExe = fs.readFileSync(path.join(__dirname, "../resources/launcher/", launcherName));
 
-    // Write the jsEntryPoint into launcher executable itself.
-    const entryPointByteOffset = launcherExe.indexOf("4f8177788c5a4086ac9f18d8639b7717"); // Magic string.
-    for (let i=0; i<jsEntryPoint.length; i++) {
-      launcherExe[entryPointByteOffset+i] = jsEntryPoint.codePointAt(i);
+    patchBinary(launcherExe, "4f8177788c5a4086ac9f18d8639b7717", jsEntryPoint);
+
+    if (platform === "windows") {
+      const dllDirs = new Set();
+      shell.cd(fetchStep.getSourcePath());
+      for (const dll of shell.ls("**/*.dll")) {
+        dllDirs.add(path.dirname(dll));
+      }
+
+      const dllPaths = Array.from(dllDirs).join(";") + ";\0";
+      patchBinary(launcherExe, "92c9c49a891d4061ba239c46fcf4c840", dllPaths);
     }
-    launcherExe[entryPointByteOffset+jsEntryPoint.length] = 0;
 
     fs.writeFileSync(destPath, launcherExe);
 
@@ -87,4 +93,12 @@ export class AddLauncherStep {
     logger.info(`Wrote launcher executable '${destLauncherName}'`);
     return true;
   }
+}
+
+function patchBinary(binary: Buffer, magic: string, value: string): void {
+  const entryPointByteOffset = binary.indexOf(magic);
+  for (let i=0; i<value.length; i++) {
+    binary[entryPointByteOffset+i] = value.codePointAt(i);
+  }
+  binary[entryPointByteOffset+value.length] = 0;
 }
