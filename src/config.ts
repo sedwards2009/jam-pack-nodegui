@@ -43,6 +43,10 @@ export interface FilePattern {
   platform?: string | string[];
 }
 
+export interface QuietQodeConfig {
+  skip?: boolean;
+}
+
 export interface AddLauncherConfig {
   skip?: boolean;
   jsEntryPoint: string;
@@ -74,6 +78,7 @@ export interface Config {
   fetch: FetchConfig;
   build: BuildConfig;
   prune: PruneConfig;
+  quietQode?: QuietQodeConfig;
   addLauncher?: AddLauncherConfig;
   zip?: ZipConfig;
   debian?: DebianConfig;

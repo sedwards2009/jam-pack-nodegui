@@ -17,6 +17,7 @@
       }
     ]
   },
+  "quietQode": {},
   "addLauncher": {
     "jsEntryPoint": "dist/main.js"
   },

@@ -14,6 +14,7 @@ import { Logger } from './logger.js';
 import { NSISStep } from './nsisstep.js';
 import { PrepareStep } from './preparestep.js';
 import { PruneStep } from './prunestep.js';
+import { QuietQodeStep } from './quietqodestep.js';
 import { getPlatform } from './utils.js';
 import { ZipStep } from './zipstep.js';
 
@@ -60,6 +61,7 @@ export class Plan {
   #fetchStep: FetchStep = null;
   #buildStep: BuildStep = null;
   #pruneStep: PruneStep = null;
+  #quietQodeStep: QuietQodeStep = null;
   #addLauncherStep: AddLauncherStep = null;
   #zipStep: ZipStep = null;
   #debianStep: DebianStep = null;
@@ -91,6 +93,10 @@ export class Plan {
     if (getPlatform() === "windows" && config.nsis != null) {
       this.#nsisStep = new NSISStep(config.nsis);
     }
+
+    if (getPlatform() === "windows" && config.quietQode != null) {
+      this.#quietQodeStep = new QuietQodeStep(config.quietQode);
+    }
   }
 
   async preflightCheck(): Promise<boolean> {
@@ -107,6 +113,9 @@ export class Plan {
       return false;
     }
     if ( ! await this.#pruneStep.preflightCheck(this.#logger, this.#prepareStep)) {
+      return false;
+    }
+    if (this.#quietQodeStep != null && ( ! await this.#quietQodeStep.preflightCheck(this.#logger))) {
       return false;
     }
     if (this.#addLauncherStep != null && ( ! await this.#addLauncherStep.preflightCheck(this.#logger))) {
@@ -153,6 +162,12 @@ export class Plan {
 
     if ( ! await this.#pruneStep.execute(this.#logger, this.#fetchStep)) {
       this.#logger.error("Prune step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if ( ! await this.#quietQodeStep.execute(this.#logger, this.#fetchStep)) {
+      this.#logger.error("Quiet Qode step failed.");
       return false;
     }
     shell.cd(cwd);
