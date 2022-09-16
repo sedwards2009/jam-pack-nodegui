@@ -13,6 +13,7 @@ import { AddLauncherConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { getPlatform } from "./utils.js";
+import { switchToGuiSubsystem } from "./patchwindowsexe.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -85,6 +86,9 @@ export class AddLauncherStep {
     }
 
     fs.writeFileSync(destPath, launcherExe);
+    if (platform === "windows") {
+      switchToGuiSubsystem(destPath);
+    }
 
     if (platform === "linux" || platform === "macos") {
       shell.chmod("a+x", destPath);
