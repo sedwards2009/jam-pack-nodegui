@@ -39,5 +39,11 @@
         "command": "echo \"Hello windows\""
       }
     ]
+  },
+  "nsis": {
+    "companyName": "Simonzone",
+    "description": "A small app to test NodeGui and installation.",
+    "detailColors": "ff0000 000000",
+    "appTitle": "Test NodeGui App"
   }
 }

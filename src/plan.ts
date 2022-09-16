@@ -11,6 +11,7 @@ import { Config } from './config.js';
 import { DebianStep } from './debianstep.js';
 import { FetchStep } from './fetchstep.js';
 import { Logger } from './logger.js';
+import { NSISStep } from './nsisstep.js';
 import { PrepareStep } from './preparestep.js';
 import { PruneStep } from './prunestep.js';
 import { getPlatform } from './utils.js';
@@ -62,6 +63,7 @@ export class Plan {
   #addLauncherStep: AddLauncherStep = null;
   #zipStep: ZipStep = null;
   #debianStep: DebianStep = null;
+  #nsisStep: NSISStep = null;
 
   constructor(configPath: string, config: Config) {
     this.#config = config;
@@ -84,6 +86,10 @@ export class Plan {
 
     if (getPlatform() === "linux" && config.debian != null) {
       this.#debianStep = new DebianStep(config.debian);
+    }
+
+    if (getPlatform() === "windows" && config.nsis != null) {
+      this.#nsisStep = new NSISStep(config.nsis);
     }
   }
 
@@ -110,6 +116,9 @@ export class Plan {
       return false;
     }
     if (this.#debianStep != null && ( ! await this.#debianStep.preflightCheck(this.#logger))) {
+      return false;
+    }
+    if (this.#nsisStep != null && ( ! await this.#nsisStep.preflightCheck(this.#logger))) {
       return false;
     }
     return true;
@@ -164,6 +173,12 @@ export class Plan {
 
     if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep, this.#pruneStep))) {
       this.#logger.error("Debian step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if (this.#nsisStep != null && ( ! await this.#nsisStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep, this.#pruneStep))) {
+      this.#logger.error("NSIS step failed.");
       return false;
     }
     shell.cd(cwd);

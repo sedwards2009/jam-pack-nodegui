@@ -60,6 +60,15 @@ export interface DebianConfig {
   prePack?: Commands;
 }
 
+export interface NSISConfig {
+  skip?: boolean;
+  prePack?: Commands;
+  companyName?: string;
+  description?: string;
+  detailColors?: string;
+  appTitle?: string;
+}
+
 export interface Config {
   prepare: PrepareConfig;
   fetch: FetchConfig;
@@ -68,4 +77,5 @@ export interface Config {
   addLauncher?: AddLauncherConfig;
   zip?: ZipConfig;
   debian?: DebianConfig;
+  nsis?: NSISConfig;
 }
