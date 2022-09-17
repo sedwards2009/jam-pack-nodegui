@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import * as path from "node:path";
 import copy from 'recursive-copy';
 import shell from "shelljs";
+import {fileURLToPath} from 'node:url';
 
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';
@@ -16,6 +17,8 @@ import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
 import { PruneStep } from './prunestep.js';
 import { executeCommandAndCaptureOutput, getPlatform } from "./utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const NSIS_SOURCE_NAME = "nsis_source";
 
@@ -122,6 +125,10 @@ export class NSISStep {
       appName = `"${escapeString(this.#config.appTitle)}" "${escapeStringDoubleAmp(this.#config.appTitle)}"`;
     }
 
+    const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
+    let installerIconPath = smallIconPath;
+    let uninstallerIconPath = smallIconPath;
+
     const installerScript = `
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
@@ -135,7 +142,8 @@ export class NSISStep {
 
 !define MUI_ABORTWARNING # This will warn the user if they exit from the installer.
 ${this.#config.detailColors != null ? '!define MUI_INSTFILESPAGE_COLORS "' + this.#config.detailColors + '"' : ""}
-# ! define MUI_ICON "${windowsBuildDirName}\\main\\resources\\logo\\extraterm_small_logo.ico"
+!define MUI_ICON "${installerIconPath}"
+!define MUI_UNICON "${uninstallerIconPath}"
 
 !insertmacro MUI_PAGE_WELCOME # Welcome to the installer page.
 !insertmacro MUI_PAGE_DIRECTORY # In which folder install page.
