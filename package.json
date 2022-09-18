@@ -1,6 +1,6 @@
 {
   "name": "jam-pack-nodegui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tool to package NodeGui applications",
   "main": "dist/main.js",
   "author": "Simon Edwards <simon@simonzone.com>",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "yarn run build:code && yarn run build:bundle",
     "build:code": "tsc",
-    "build:bundle": "esbuild build/main.js --bundle --outfile=dist/main.js --platform=node --format=esm '--external:./node_modules/*'",
+    "build:bundle": "esbuild build/main.js --bundle --outfile=dist/main.js --platform=node --format=esm '--external:./node_modules/*' --banner:js='#!/usr/bin/env node'",
     "clean": "shx rm -rf build dist",
     "run": "node dist/main.js",
     "test": "yarn run build && yarn node --experimental-vm-modules $(yarn bin jest)"
