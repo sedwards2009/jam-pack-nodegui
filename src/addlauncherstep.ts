@@ -14,6 +14,8 @@ import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { getPlatform } from "./utils.js";
 import { switchToGuiSubsystem } from "./patchwindowsexe.js";
+import rcedit, { Options as RceditOptions, VersionStringOptions as RceditVersionStringOptions } from 'rcedit';
+
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -88,6 +90,58 @@ export class AddLauncherStep {
     fs.writeFileSync(destPath, launcherExe);
     if (platform === "windows") {
       switchToGuiSubsystem(destPath);
+
+      let iconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
+      const options: RceditOptions = {
+        icon: iconPath
+      };
+
+      const versionOptions: RceditVersionStringOptions = {};
+
+      if (this.#config.windowsVersionString != null) {
+        options["product-version"] = this.#config.windowsVersionString;
+      }
+      if (this.#config.windowsFileVersion != null) {
+        options["file-version"] = this.#config.windowsFileVersion;
+      }
+      if (this.#config.windowsComments != null) {
+        versionOptions.Comments = this.#config.windowsComments;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsCompanyName != null) {
+        versionOptions.CompanyName = this.#config.windowsCompanyName;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsFileDescription != null) {
+        versionOptions.FileDescription = this.#config.windowsFileDescription;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsInternalFilename != null) {
+        versionOptions.InternalFilename = this.#config.windowsInternalFilename;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsLegalCopyright != null) {
+        versionOptions.LegalCopyright = this.#config.windowsLegalCopyright;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsLegalTrademarks1 != null) {
+        versionOptions.LegalTrademarks1 = this.#config.windowsLegalTrademarks1;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsLegalTrademarks2 != null) {
+        versionOptions.LegalTrademarks2 = this.#config.windowsLegalTrademarks2;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsOriginalFilename != null) {
+        versionOptions.OriginalFilename = this.#config.windowsOriginalFilename;
+        options["version-string"] = versionOptions;
+      }
+      if (this.#config.windowsProductName != null) {
+        versionOptions.ProductName = this.#config.windowsProductName;
+        options["version-string"] = versionOptions;
+      }
+
+      await rcedit(destPath, options);
     }
 
     if (platform === "linux" || platform === "macos") {

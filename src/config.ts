@@ -50,6 +50,20 @@ export interface QuietQodeConfig {
 export interface AddLauncherConfig {
   skip?: boolean;
   jsEntryPoint: string;
+  windowsVersionString?: string;
+  windowsFileVersion?: string;
+  windowsIcon?: string;
+  windowsProductVersion?: string;
+
+  windowsComments?: string;
+  windowsCompanyName?: string;
+  windowsFileDescription?: string;
+  windowsInternalFilename?: string;
+  windowsLegalCopyright?: string;
+  windowsLegalTrademarks1?: string;
+  windowsLegalTrademarks2?: string;
+  windowsOriginalFilename?: string;
+  windowsProductName?: string;
 }
 
 export interface ZipConfig {
