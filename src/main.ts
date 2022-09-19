@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Copyright 2022 Simon Edwards <simon@simonzone.com>
  *
@@ -19,7 +20,7 @@ async function main(): Promise<void> {
   program.name('ship-nodegui');
   program.description('Tool to package NodeGui applications');
   program.version('0.1.0');
-  program.option('--config', 'Path to config file');
+  program.option('-c --config', 'Path to config file');
   program.action(() => {
     execute(program, Action.package);
   });
