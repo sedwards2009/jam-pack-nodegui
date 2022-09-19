@@ -166,7 +166,7 @@ export class Plan {
     }
     shell.cd(cwd);
 
-    if ( ! await this.#quietQodeStep.execute(this.#logger, this.#fetchStep)) {
+    if (this.#quietQodeStep != null && ( ! await this.#quietQodeStep.execute(this.#logger, this.#fetchStep))) {
       this.#logger.error("Quiet Qode step failed.");
       return false;
     }

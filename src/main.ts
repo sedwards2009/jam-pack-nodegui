@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   program.name('ship-nodegui');
   program.description('Tool to package NodeGui applications');
   program.version('0.1.0');
-  program.option('-c --config', 'Path to config file');
+  program.option('-c, --config <config>', 'Path to config file');
   program.action(() => {
     execute(program, Action.package);
   });
@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   await program.parseAsync();
 }
 
-function execute(program: Command, action: Action): void {
+async function execute(program: Command, action: Action): Promise<void> {
   const options = program.opts();
   const configPath = options.config ?? "test-config.json";
 
@@ -44,10 +44,10 @@ function execute(program: Command, action: Action): void {
 
   switch(action) {
     case Action.check:
-      plan.preflightCheck();
+      await plan.preflightCheck();
       break;
     case Action.package:
-      plan.execute();
+      await plan.execute();
       break;
   }
 }
