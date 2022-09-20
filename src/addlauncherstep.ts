@@ -15,12 +15,12 @@ import { Logger } from "./logger.js";
 import { getPlatform } from "./utils.js";
 import { switchToGuiSubsystem } from "./patchwindowsexe.js";
 import rcedit, { Options as RceditOptions, VersionStringOptions as RceditVersionStringOptions } from 'rcedit';
+import { path as __dirname } from "./sourcedir.js";
 
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class AddLauncherStep {
   #config: AddLauncherConfig = null;
+  #launcherName: string = null;
 
   constructor(config: AddLauncherConfig) {
     this.#config = config;
@@ -58,8 +58,8 @@ export class AddLauncherStep {
 
     const platform = getPlatform();
     const extension = platform === "windows" ? ".exe" : "";
-    const destLauncherName = buildStep.getApplicationName() + extension;
-    const destPath = path.join(fetchStep.getSourcePath(), destLauncherName);
+    this.#launcherName = buildStep.getApplicationName() + extension;
+    const destPath = path.join(fetchStep.getSourcePath(), this.#launcherName);
 
     if (shell.test("-e", destPath)) {
       logger.error(`Unable to copy in the launcher executable to '${destPath}', a file with the same name already exists.`);
@@ -148,8 +148,12 @@ export class AddLauncherStep {
       shell.chmod("a+x", destPath);
     }
 
-    logger.info(`Wrote launcher executable '${destLauncherName}'`);
+    logger.info(`Wrote launcher executable '${this.#launcherName}'`);
     return true;
+  }
+
+  getLauncherName(): string {
+    return this.#launcherName;
   }
 }
 
