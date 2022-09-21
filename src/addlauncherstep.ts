@@ -6,9 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import shell from "shelljs";
-import {fileURLToPath} from 'node:url';
 import { BuildStep } from "./buildstep.js";
-
 import { AddLauncherConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";

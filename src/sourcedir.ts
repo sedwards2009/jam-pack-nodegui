@@ -16,11 +16,11 @@ declare const __dirname: string;  // Common JS
 // and the code suddenly is being loaded as cjs. esbuild can convert ESM to
 // cjs but it does support translating `import.meta.url`. So we test for it.
 let dirPath = "";
-if (import.meta.url !== undefined) {
-  dirPath = fileURLToPath(import.meta.url).slice(0,-12);
-} else {
+if (__dirname !== undefined) {
   // Common JS environment.
   dirPath = __dirname;
+} else {
+  dirPath = fileURLToPath(import.meta.url).slice(0,-12);
 }
 export const path = dirPath;
 
