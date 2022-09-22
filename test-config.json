@@ -46,5 +46,11 @@
     "description": "A small app to test NodeGui and installation.",
     "detailColors": "ff0000 000000",
     "appTitle": "Test NodeGui App"
+  },
+  "appImage": {
+    "prePack": [
+      "cp $pruneStep_trashPath/packaging/test-nodegui-app.desktop $appImageStep_appImageSourceDirectory",
+      "cp $pruneStep_trashPath/packaging/test-nodegui-app.png $appImageStep_appImageSourceDirectory"
+    ]
   }
 }

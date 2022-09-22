@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import shell from "shelljs";
 import { AddLauncherStep } from './addlauncherstep.js';
+import { AppImageStep } from './appimagestep.js';
 import { BuildStep } from './buildstep.js';
 import { Config } from './config.js';
 import { DebianStep } from './debianstep.js';
@@ -65,6 +66,7 @@ export class Plan {
   #addLauncherStep: AddLauncherStep = null;
   #zipStep: ZipStep = null;
   #debianStep: DebianStep = null;
+  #appImageStep: AppImageStep = null;
   #nsisStep: NSISStep = null;
 
   constructor(configPath: string, config: Config) {
@@ -88,6 +90,9 @@ export class Plan {
 
     if (getPlatform() === "linux" && config.debian != null) {
       this.#debianStep = new DebianStep(config.debian);
+    }
+    if (getPlatform() === "linux" && config.appImage != null) {
+      this.#appImageStep = new AppImageStep(config.appImage);
     }
 
     if (getPlatform() === "windows" && config.nsis != null) {
@@ -125,6 +130,9 @@ export class Plan {
       return false;
     }
     if (this.#debianStep != null && ( ! await this.#debianStep.preflightCheck(this.#logger))) {
+      return false;
+    }
+    if (this.#appImageStep != null && ( ! await this.#appImageStep.preflightCheck(this.#logger, this.#addLauncherStep))) {
       return false;
     }
     if (this.#nsisStep != null && ( ! await this.#nsisStep.preflightCheck(this.#logger))) {
@@ -186,13 +194,25 @@ export class Plan {
     }
     shell.cd(cwd);
 
-    if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep, this.#pruneStep))) {
+    if (this.#debianStep != null && ( ! await this.#debianStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
+        this.#buildStep, this.#pruneStep))) {
+
       this.#logger.error("Debian step failed.");
       return false;
     }
     shell.cd(cwd);
 
-    if (this.#nsisStep != null && ( ! await this.#nsisStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep, this.#pruneStep))) {
+    if (this.#appImageStep != null && ( ! await this.#appImageStep.execute(this.#logger, this.#prepareStep,
+        this.#fetchStep, this.#buildStep, this.#pruneStep, this.#addLauncherStep))) {
+
+      this.#logger.error("AppImage step failed.");
+      return false;
+    }
+    shell.cd(cwd);
+
+    if (this.#nsisStep != null && ( ! await this.#nsisStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
+        this.#buildStep, this.#pruneStep))) {
+
       this.#logger.error("NSIS step failed.");
       return false;
     }

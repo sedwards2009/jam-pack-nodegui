@@ -78,6 +78,12 @@ export interface DebianConfig {
   prePack?: Commands;
 }
 
+export interface AppImageConfig {
+  skip?: boolean;
+  prePack?: Commands;
+  exeEntryPoint?: string;
+}
+
 export interface NSISConfig {
   skip?: boolean;
   prePack?: Commands;
@@ -97,4 +103,5 @@ export interface Config {
   zip?: ZipConfig;
   debian?: DebianConfig;
   nsis?: NSISConfig;
+  appImage?: AppImageConfig;
 }
