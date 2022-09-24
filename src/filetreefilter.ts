@@ -36,7 +36,7 @@ export class FileTreeFilter {
 
   run(dir: string): void {
     for (const itemPath of shell.find(dir)) {
-      if ( ! shell.test('-f', itemPath)) {
+      if (shell.test('-d', itemPath)) {
         continue;
       }
       this.#resultCallback(itemPath, this.#isAccept(itemPath));

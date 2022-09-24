@@ -113,6 +113,16 @@ export class PruneStep {
       "node_modules/memoize-one/dist/memoize-one.cjs.js",
     ];
 
+    const nodeguiDeleteList = [
+      "node_modules/@nodegui/nodegui/dist/demo.js",
+      "node_modules/@nodegui/nodegui/dist/demo.d.ts",
+      "node_modules/@nodegui/nodegui/dist/examples/**/*",
+
+      "node_modules/postcss-nodegui-autoprefixer/CHANGELOG.md",
+      "node_modules/postcss-nodegui-autoprefixer/dist/index.d.ts",
+      "node_modules/postcss-nodegui-autoprefixer/dist/__tests__/*",
+    ];
+
     if (platform === "linux") {
       nodeguiAcceptList.push("node_modules/@nodegui/qode/binaries/*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
@@ -170,15 +180,24 @@ export class PruneStep {
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qsvg.dll");
     }
 
-    const nodeguiDeleteList = [
-      "node_modules/@nodegui/nodegui/dist/demo.js",
-      "node_modules/@nodegui/nodegui/dist/demo.d.ts",
-      "node_modules/@nodegui/nodegui/dist/examples/**/*",
+    if (platform === "macos") {
+      nodeguiAcceptList.push("node_modules/@nodegui/qode/binaries/*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
 
-      "node_modules/postcss-nodegui-autoprefixer/CHANGELOG.md",
-      "node_modules/postcss-nodegui-autoprefixer/dist/index.d.ts",
-      "node_modules/postcss-nodegui-autoprefixer/dist/__tests__/*",
-    ];
+      for (const lib of ["QtConcurrent", "QtCore", "QtDBus", "QtGui", "QtPrintSupport", "QtSvg", "QtWidgets"]) {
+        nodeguiAcceptList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/**/*`);
+
+        nodeguiDeleteList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/Headers`);
+        nodeguiDeleteList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/**/Headers/**/*`);
+      }
+      
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/iconengines/libqsvgicon.dylib");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/imageformats/*.dylib");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/platforms/*.dylib");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/platformthemes/libqxdgdesktopportal.dylib");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/printsupport/libcocoaprintersupport.dylib");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/styles/libqmacstyle.dylib");
+    }
 
     treeFilter.addPattern(nodeguiAcceptList, nodeguiDeleteList);
 
