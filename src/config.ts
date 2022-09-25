@@ -93,6 +93,12 @@ export interface NSISConfig {
   appTitle?: string;
 }
 
+export interface DMGConfig {
+  skip?: boolean;
+  prePack?: Commands;
+
+}
+
 export interface Config {
   prepare: PrepareConfig;
   fetch: FetchConfig;
@@ -104,4 +110,5 @@ export interface Config {
   debian?: DebianConfig;
   nsis?: NSISConfig;
   appImage?: AppImageConfig;
+  dmg?: DMGConfig;
 }

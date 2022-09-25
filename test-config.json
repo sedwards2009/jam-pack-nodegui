@@ -52,5 +52,8 @@
       "cp $pruneStep_trashPath/packaging/test-nodegui-app.desktop $appImageStep_appImageSourceDirectory",
       "cp $pruneStep_trashPath/packaging/test-nodegui-app.png $appImageStep_appImageSourceDirectory"
     ]
+  },
+  "dmg" : {
+    
   }
 }
