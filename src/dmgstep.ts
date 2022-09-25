@@ -97,43 +97,8 @@ export class DmgStep {
 // sh.mv(path.join(versionedOutputDir, `${APP_TITLE}.app/Contents/Resources/main/resources/logo/extraterm_small_logo.icns`),
 //     path.join(versionedOutputDir, `${APP_TITLE}.app/Contents/Resources/extraterm.icns`));
       
-    const plistContents = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-    <dict>
-        <key>CFBundleDisplayName</key>
-        <string>${appTitle}</string>
-        <key>CFBundleDevelopmentRegion</key>
-        <string>en</string>
-        <key>CFBundleExecutable</key>
-        <string>${appTitle}</string>
-        <key>CFBundleIdentifier</key>
-        <string>org.extraterm.${appTitle}</string>
-        <key>CFBundleIconFile</key>
-        <string>extraterm.icns</string>
-        <key>CFBundleInfoDictionaryVersion</key>
-        <string>6.0</string>
-        <key>CFBundleName</key>
-        <string>${appTitle}</string>
-        <key>CFBundlePackageType</key>
-        <string>APPL</string>
-        <key>CFBundleShortVersionString</key>
-        <string>${appVersion}</string>
-        <key>CFBundleVersion</key>
-        <string>${appVersion}</string>
-        <key>CFBundleSupportedPlatforms</key>
-        <array>
-        <string>MacOSX</string>
-        </array>
-        <key>LSMinimumSystemVersion</key>
-        <string>10.15</string>
-        <key>NSHumanReadableCopyright</key>
-        <string>Copyright © 2022 Simon Edwards</string>
-        <key>NSHighResolutionCapable</key>
-        <string>True</string>
-    </dict>
-</plist>
-`;
+    const plistContents = this.#getPlistFile(buildStep);
+    
     fs.writeFileSync(path.join(contentsPath, "Info.plist"), plistContents, {encoding: 'utf8'});
 
     const env: { [key: string]: string } = {};
@@ -159,24 +124,56 @@ export class DmgStep {
     return true;
   }
 
-//   #getControlFile(buildStep: BuildStep): string {
-//     const fields = this.#config.controlFields == null ? {} : {...this.#config.controlFields};
+  #getPlistFile(buildStep: BuildStep): string {
+    const appTitle = buildStep.getApplicationName();
+    const appVersion = buildStep.getApplicationVersion();
 
-//     const update = (name: string, value: string) => {
-//       if (fields[name] === undefined) {
-//         fields[name] = value;
-//       }
-//     };
-//     update("Package", buildStep.getApplicationName());
-//     update("Version", buildStep.getApplicationVersion());
-//     update("Architecture", "amd64");
-
-//     const result: string[] = [];
-//     for (const key of Object.getOwnPropertyNames(fields)) {
-//       result.push(`${key}: ${fields[key]}`);
-//     }
-//     return result.join("\n") + "\n";
-//   }
+    const cfBundleDisplayName = this.#config.cfBundleDisplayName ?? appTitle;
+    const cfBundleDevelopmentRegion = this.#config.cfBundleDevelopmentRegion ?? "en";
+    const cfBundleExecutable = this.#config.cfBundleExecutable ?? appTitle;
+    const cfBundleIdentifier = this.#config.cfBundleIdentifier ?? appTitle;
+    const cfBundleName = this.#config.cfBundleName ?? appTitle;
+    const cfBundleShortVersionString = this.#config.cfBundleShortVersionString ?? appVersion;
+    const cfBundleVersion = this.#config.cfBundleVersion ?? appVersion;
+    const nsHumanReadableCopyright = this.#config.nsHumanReadableCopyright ?? "";
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>CFBundleDisplayName</key>
+        <string>${xmlEncode(cfBundleDisplayName)}</string>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>${xmlEncode(cfBundleDevelopmentRegion)}</string>
+        <key>CFBundleExecutable</key>
+        <string>${xmlEncode(cfBundleExecutable)}</string>
+        <key>CFBundleIdentifier</key>
+        <string>${xmlEncode(cfBundleIdentifier)}</string>
+        <key>CFBundleIconFile</key>
+        <string>extraterm.icns</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleName</key>
+        <string>${xmlEncode(cfBundleName)}</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>${xmlEncode(cfBundleShortVersionString)}</string>
+        <key>CFBundleVersion</key>
+        <string>${xmlEncode(cfBundleVersion)}</string>
+        <key>CFBundleSupportedPlatforms</key>
+        <array>
+        <string>MacOSX</string>
+        </array>
+        <key>LSMinimumSystemVersion</key>
+        <string>10.15</string>
+        <key>NSHumanReadableCopyright</key>
+        <string>${xmlEncode(nsHumanReadableCopyright)}</string>
+        <key>NSHighResolutionCapable</key>
+        <string>True</string>
+    </dict>
+</plist>
+`;
+  }
 
   getDMGSourceDirectory(): string {
     return this.#dmgSourceDirectory;
@@ -185,4 +182,8 @@ export class DmgStep {
   addVariables(variables: {[key: string]: string}): void {
     variables["dmgStep.dmgSourceDirectory"] = this.getDMGSourceDirectory();
   }
+}
+
+function xmlEncode(s: string): string {
+  return s;
 }

@@ -96,7 +96,14 @@ export interface NSISConfig {
 export interface DMGConfig {
   skip?: boolean;
   prePack?: Commands;
-
+  cfBundleDisplayName?: string;
+  cfBundleDevelopmentRegion?: string;
+  cfBundleExecutable?: string;
+  cfBundleIdentifier?: string;
+  cfBundleName?: string;
+  cfBundleShortVersionString?: string;
+  cfBundleVersion?: string;
+  nsHumanReadableCopyright?: string;
 }
 
 export interface Config {
