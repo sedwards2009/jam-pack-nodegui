@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@yarnpkg/shell": "^3.2.4",
+    "appdmg": "^0.6.4",
     "commander": "^9.4.0",
     "minimatch": "^5.1.0",
     "rcedit": "^3.0.1",

@@ -40,10 +40,6 @@ export class DmgStep {
     }
     logger.subsection("DMG step");
 
-    if (! await checkWhichCommand("hdiutil", logger)) {
-      return false;
-    }
-
     if ( ! await this.#commandList.preflightCheck(logger, "prePack")) {
       return false
     }
@@ -68,16 +64,6 @@ export class DmgStep {
     const appVersion = buildStep.getApplicationVersion();
 
     shell.mkdir(path.join(this.#dmgSourceDirectory, `${appTitle}.app`));
-
-    shell.cd(this.#dmgSourceDirectory);
-    shell.ln("-s", "/Applications", "Applications");
-
-    const volumneIconPath = path.join(__dirname, "../resources/macos/.VolumeIcon.icns");
-    shell.cp(volumneIconPath, this.#dmgSourceDirectory);
-
-    shell.mkdir(path.join(this.#dmgSourceDirectory, `.background`));
-    const backgroundPath = path.join(__dirname, "../resources/macos/dmg_background.png");
-    shell.cp(backgroundPath, path.join(this.#dmgSourceDirectory, ".background/background.png"));
   
     const contentsPath = path.join(this.#dmgSourceDirectory, `${appTitle}.app`, `Contents`);
     shell.mkdir(contentsPath);
@@ -94,12 +80,22 @@ export class DmgStep {
       return false;
     }
    
-// sh.mv(path.join(versionedOutputDir, `${APP_TITLE}.app/Contents/Resources/main/resources/logo/extraterm_small_logo.icns`),
-//     path.join(versionedOutputDir, `${APP_TITLE}.app/Contents/Resources/extraterm.icns`));
-      
     const plistContents = this.#getPlistFile(buildStep);
-    
     fs.writeFileSync(path.join(contentsPath, "Info.plist"), plistContents, {encoding: 'utf8'});
+
+    const volumeIconPath = path.join(__dirname, "../resources/macos/.VolumeIcon.icns");
+    const backgroundPath = path.join(__dirname, "../resources/macos/dmg_background.png");
+    const appdmgConfig = {
+      "title": appTitle,
+      "icon": volumeIconPath,
+      "background": backgroundPath,
+      "contents": [
+        { "x": 448, "y": 230, "type": "link", "path": "/Applications" },
+        { "x": 192, "y": 230, "type": "file", "path": `dmg_source/${appTitle}.app` }
+      ]
+    };
+    fs.writeFileSync(path.join(prepareStep.getTempDirectory(), "appdmg.json"), JSON.stringify(appdmgConfig),
+      {encoding: "utf-8"});
 
     const env: { [key: string]: string } = {};
     prepareStep.addVariables(env);
@@ -111,8 +107,8 @@ export class DmgStep {
       return false;
     }
 
-    const command= `hdiutil create -volname '${appTitle}' -srcfolder '${this.#dmgSourceDirectory}' -ov -format UDZO ` +
-                   `'${prepareStep.getTempDirectory()}/${appTitle}_${appVersion}.dmg'`;
+    shell.cd(prepareStep.getTempDirectory());
+    const command = `appdmg appdmg.json '${appTitle}_${appVersion}.dmg'`;
     const result = shell.exec(command);
     if (result.code !== 0) {
       logger.error(`Something went wrong while running command '${command}'`);
