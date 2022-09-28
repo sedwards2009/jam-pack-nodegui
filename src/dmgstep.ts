@@ -80,7 +80,9 @@ export class DmgStep {
       return false;
     }
    
-    const plistContents = this.#getPlistFile(buildStep);
+    shell.cp(path.join(__dirname, "../resources/macos/jam-app.icns"), path.join(this.#dmgResourcesDirectory, "jam-app.icns"));
+
+    const plistContents = this.#getPlistFile(buildStep, "jam-app.icns");
     fs.writeFileSync(path.join(contentsPath, "Info.plist"), plistContents, {encoding: 'utf8'});
 
     const volumeIconPath = path.join(__dirname, "../resources/macos/.VolumeIcon.icns");
@@ -120,7 +122,7 @@ export class DmgStep {
     return true;
   }
 
-  #getPlistFile(buildStep: BuildStep): string {
+  #getPlistFile(buildStep: BuildStep, cfBundleIconFile: string): string {
     const appTitle = buildStep.getApplicationName();
     const appVersion = buildStep.getApplicationVersion();
 
@@ -132,6 +134,7 @@ export class DmgStep {
     const cfBundleShortVersionString = this.#config.cfBundleShortVersionString ?? appVersion;
     const cfBundleVersion = this.#config.cfBundleVersion ?? appVersion;
     const nsHumanReadableCopyright = this.#config.nsHumanReadableCopyright ?? "";
+
     return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -145,7 +148,7 @@ export class DmgStep {
         <key>CFBundleIdentifier</key>
         <string>${xmlEncode(cfBundleIdentifier)}</string>
         <key>CFBundleIconFile</key>
-        <string>extraterm.icns</string>
+        <string>${cfBundleIconFile}</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundleName</key>
