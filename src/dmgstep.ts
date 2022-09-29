@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import * as path from "node:path";
 import copy from 'recursive-copy';
 import shell from "shelljs";
+import { AddLauncherStep } from './addlauncherstep.js';
 
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';
@@ -47,7 +48,9 @@ export class DmgStep {
     return true;
   }
 
-  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep, pruneStep: PruneStep): Promise<boolean> {
+  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep,
+      pruneStep: PruneStep, addLauncherStep: AddLauncherStep): Promise<boolean> {
+
     if (this.#isSkip()) {
       logger.subsection("DMG step (skipping)");
       return true;
@@ -69,6 +72,7 @@ export class DmgStep {
     shell.mkdir(contentsPath);
     this.#dmgResourcesDirectory = path.join(contentsPath, "Resources");
     shell.mkdir(this.#dmgResourcesDirectory);
+    shell.mkdir(path.join(contentsPath, "MacOS"));
 
     try {
       await copy(fetchStep.getSourcePath(), this.#dmgResourcesDirectory, {
@@ -79,7 +83,13 @@ export class DmgStep {
       logger.error('Copy failed: ' + error);
       return false;
     }
-   
+
+    if (addLauncherStep != null && ! addLauncherStep.isSkip()) {
+      const launcherPath = path.join(this.#dmgResourcesDirectory, addLauncherStep.getLauncherName());
+      const newLauncherPath = path.join(contentsPath, "MacOS", addLauncherStep.getLauncherName());
+      shell.mv(launcherPath, newLauncherPath);
+    }
+
     shell.cp(path.join(__dirname, "../resources/macos/jam-app.icns"), path.join(this.#dmgResourcesDirectory, "jam-app.icns"));
 
     const plistContents = this.#getPlistFile(buildStep, "jam-app.icns");

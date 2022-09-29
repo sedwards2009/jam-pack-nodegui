@@ -54,6 +54,7 @@
     ]
   },
   "dmg" : {
-    "nsHumanReadableCopyright": "Copyright 2022 Simon Edwards"
+    "nsHumanReadableCopyright": "Copyright 2022 Simon Edwards",
+    "cfBundleIdentifier": "com.simonzone.test-nodegui-app"
   }
 }

@@ -228,7 +228,7 @@ export class Plan {
     shell.cd(cwd);
 
     if (this.#dmgStep != null && ( ! await this.#dmgStep.execute(this.#logger, this.#prepareStep, this.#fetchStep,
-      this.#buildStep, this.#pruneStep))) {
+      this.#buildStep, this.#pruneStep, this.#addLauncherStep))) {
 
       this.#logger.error("DMG step failed.");
       return false;

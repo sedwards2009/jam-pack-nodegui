@@ -24,6 +24,10 @@ export class AddLauncherStep {
     this.#config = config;
   }
 
+  isSkip(): boolean {
+    return this.#config.skip == true;
+  }
+
   async preflightCheck(logger: Logger): Promise<boolean> {
     if (this.#config.skip) {
       logger.subsection("Add Launcher step (skipping)");
