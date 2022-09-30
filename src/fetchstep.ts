@@ -5,6 +5,7 @@
  */
 import path from "node:path";
 import shell from "shelljs";
+import { CommandList } from './commandlist.js';
 import { FetchConfig } from "./config.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
@@ -16,9 +17,11 @@ export class FetchStep {
   #gitSourceDirectoryName: string = "git_source";
   #gitSourcePath: string = null;
   #tempDirectory: string = null;
+  #commandList: CommandList;
 
   constructor(config: FetchConfig) {
     this.#config = config;
+    this.#commandList = new CommandList(config.postFetch);
   }
 
   async preflightCheck(logger: Logger): Promise<boolean> {
@@ -37,6 +40,10 @@ export class FetchStep {
 
     } else {
       logger.checkOk(`Will fetch project using commands`);
+    }
+
+    if ( ! await this.#commandList.preflightCheck(logger, "postFetch")) {
+      return false
     }
 
     return true;
@@ -60,6 +67,13 @@ export class FetchStep {
     const result = shell.exec(command);
     if (result.code !== 0) {
       logger.error(`Something went wrong while running command '${command}'`);
+      return false;
+    }
+
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    this.addVariables(env);
+    if ( ! await this.#commandList.execute(logger, env)) {
       return false;
     }
 

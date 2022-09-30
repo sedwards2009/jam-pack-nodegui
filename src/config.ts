@@ -22,7 +22,7 @@ export interface PrepareConfig {
 export interface FetchConfig {
   gitUrl?: string;
   gitBranch?: string;
-  postFetch?: Commands; // TODO
+  postFetch?: Commands;
 }
 
 export interface BuildConfig {
