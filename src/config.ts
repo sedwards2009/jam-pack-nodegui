@@ -22,6 +22,7 @@ export interface PrepareConfig {
 export interface FetchConfig {
   gitUrl?: string;
   gitBranch?: string;
+  gitFromCwd?: boolean;
   postFetch?: Commands;
 }
 

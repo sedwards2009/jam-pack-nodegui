@@ -16,6 +16,8 @@ export class FetchStep {
   #config: FetchConfig;
   #gitSourceDirectoryName: string = "git_source";
   #gitSourcePath: string = null;
+  #gitUrl: string = null;
+  #gitBranch: string = null;
   #tempDirectory: string = null;
   #commandList: CommandList;
 
@@ -28,8 +30,6 @@ export class FetchStep {
     logger.subsection("Fetch step");
     const gitUrl = this.#config.gitUrl;
     if (gitUrl != null) {
-      logger.checkOk(`Will fetch project from git repository at '${gitUrl}'`);
-
       const {result, output } = await executeCommandAndCaptureOutput('git --version');
       if (result === 0) {
         logger.checkOk(`Found 'git' command version: ${output.trim()}`);
@@ -38,8 +38,15 @@ export class FetchStep {
         return false;
       }
 
+      const branch = this.#config.gitBranch == null ? null : this.#config.gitBranch;
+      logger.checkOk(`Will fetch project from git repository at '${gitUrl}' using branch '${branch == null ? '<default>' : branch}'`);
     } else {
-      logger.checkOk(`Will fetch project using commands`);
+      if (this.#config.gitFromCwd) {
+        logger.checkOk(`Will fetch GIT URL and branch from the current directory.`);
+      } else {
+        logger.checkError(`Either 'gitUrl' or 'gitFromCwd' need to be set in the configuration.`);
+        return false;
+      }
     }
 
     if ( ! await this.#commandList.preflightCheck(logger, "postFetch")) {
@@ -56,12 +63,21 @@ export class FetchStep {
   async execute(logger: Logger, prepareStep: PrepareStep): Promise<boolean> {
     logger.subsection("Fetch step");
 
+    if (this.#config.gitUrl != null) {
+      this.#gitUrl = this.#config.gitUrl;
+      this.#gitBranch = this.#config.gitBranch != null ? this.#config.gitBranch : null;
+    } else {
+      const { url, branch } = await this.#readCwdGitConfig(logger);
+      this.#gitUrl = url;
+      this.#gitBranch = branch;
+    }
+
     this.#tempDirectory = prepareStep.getTempDirectory();
     this.#gitSourcePath = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
     shell.cd(prepareStep.getTempDirectory());
-    const branchOption = this.#config.gitBranch != null ? `-b '${this.#config.gitBranch}'` : "";
-    const command = `git clone --depth 1 ${branchOption} ${this.#config.gitUrl} ${this.#gitSourceDirectoryName}`;
+    const branchOption = this.#gitBranch != null ? `-b '${this.#gitBranch}'` : "";
+    const command = `git clone --depth 1 ${branchOption} ${this.#gitUrl} ${this.#gitSourceDirectoryName}`;
     logger.info(`Cloning repository with command '${command}'`)
 
     const result = shell.exec(command);
@@ -78,6 +94,24 @@ export class FetchStep {
     }
 
     return true;
+  }
+
+  async #readCwdGitConfig(logger: Logger): Promise<{ url: string; branch: string; }> {
+    const urlCommand = "git config --get remote.origin.url";
+    const {result: urlResult, output: url } = await executeCommandAndCaptureOutput(urlCommand);
+    if (urlResult !== 0) {
+      logger.error(`An error occurred while running command '${urlCommand}': ${url}`);
+      return null;
+    }
+
+    const branchCommand = "git branch --show-current";
+    const {result: resultBranch, output: branch } = await executeCommandAndCaptureOutput(branchCommand);
+    if (resultBranch !== 0) {
+      logger.error(`An error occurred while running command '${urlCommand}': ${branch}`);
+      return null;
+    }
+
+    return { url: url.trim(), branch: branch.trim() };
   }
 
   getSourcePath(): string {
