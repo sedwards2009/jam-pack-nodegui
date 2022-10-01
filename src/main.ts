@@ -4,9 +4,9 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import { Command } from 'commander';
-import { Logger } from './logger.js';
-import { createPlan, Plan } from './plan.js';
+import { Command } from "commander";
+import { Logger } from "./logger.js";
+import { createPlan, Plan } from "./plan.js";
 
 
 enum Action {
@@ -17,14 +17,20 @@ enum Action {
 async function main(): Promise<void> {
   const program = new Command();
 
-  program.name('ship-nodegui');
-  program.description('Tool to package NodeGui applications');
-  program.version('0.1.0');
-  program.option('-c, --config <config>', 'Path to config file');
+  const collectSetting = (value: string, previous: string[]): string[] => {
+    previous.push(value);
+    return previous;
+  };
+
+  program.name("ship-nodegui");
+  program.description("Tool to package NodeGui applications");
+  program.version("0.1.0");
+  program.option("-c, --config <config>", "Path to config file");
+  program.option("-D, --define <setting>", "Define a setting. (Overrides the config file)", collectSetting, []);
   program.action(() => {
     execute(program, Action.package);
   });
-  program.command('check').action(async () => {
+  program.command("check").action(async () => {
     await execute(program, Action.check);
   });
   await program.parseAsync();
@@ -37,7 +43,7 @@ async function execute(program: Command, action: Action): Promise<void> {
   const logger = new Logger();
   let plan: Plan = null;
   try {
-    plan = createPlan(logger, configPath);
+    plan = createPlan(logger, configPath, options.define);
   } catch(e) {
     logger.error(e);
   }

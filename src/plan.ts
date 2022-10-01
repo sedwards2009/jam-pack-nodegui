@@ -19,12 +19,21 @@ import { QuietQodeStep } from './quietqodestep.js';
 import { getPlatform } from './utils.js';
 import { ZipStep } from './zipstep.js';
 import { DmgStep } from './dmgstep.js';
+import { Setting } from './setting.js';
 
 
-export function createPlan(logger: Logger, configPath: string): Plan {
+export function createPlan(logger: Logger, configPath: string, settingsString: string[]): Plan {
   if ( ! fs.existsSync(configPath)) {
     logger.error(`Configuration file not found at '${configPath}'.`);
     throw new Error(`Configuration file not found at '${configPath}'.`);
+  }
+
+  const settings = settingsString.map(s => new Setting(s));
+  for (const setting of settings) {
+    const error = setting.getError();
+    if (error != null) {
+      throw new Error(error);
+    }
   }
 
   const configFile = fs.readFileSync(configPath, {encoding: "utf8"});
@@ -35,6 +44,11 @@ export function createPlan(logger: Logger, configPath: string): Plan {
   } catch(e) {
     throw new Error(`An error occurred while parsing JSON configuration at '${configPath}'. ${e}`);
   }
+
+  for (const setting of settings) {
+    setting.apply(config);
+  }
+
   return new Plan(configPath, <Config> config);
 }
 

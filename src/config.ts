@@ -31,6 +31,7 @@ export interface BuildConfig {
   packageManager?: string;
   scriptName?: string;
   postBuild?: Commands;
+  applicationVersion?: string;
 }
 
 export interface PruneConfig {

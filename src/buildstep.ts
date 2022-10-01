@@ -53,6 +53,12 @@ export class BuildStep {
     }
     logger.checkOk(`Using package script '${this.#getBuildScriptName()}' to build`);
 
+    if (this.#config.applicationVersion != null) {
+      logger.checkOk(`Using '${this.#config.applicationVersion}' as the application version.`);
+    } else {
+      logger.checkOk(`Will get the application version from package.json.`);
+    }
+
     if ( ! await this.#commandList.preflightCheck(logger, "postBuild")) {
       return false
     }
