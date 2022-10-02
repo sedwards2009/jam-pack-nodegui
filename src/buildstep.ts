@@ -18,8 +18,9 @@ import { executeCommandAndCaptureOutput } from "./utils.js";
 export class BuildStep {
   #config: BuildConfig = null;
   #commandList: CommandList;
-  #applicationName: string = null;
-  #applicationVersion: string = null;
+
+  #packageApplicationName: string = null;
+  #packageApplicationVersion: string = null;
 
   constructor(config: BuildConfig) {
     this.#config = config;
@@ -52,6 +53,12 @@ export class BuildStep {
       return false;
     }
     logger.checkOk(`Using package script '${this.#getBuildScriptName()}' to build`);
+
+    if (this.#config.applicationName != null) {
+      logger.checkOk(`Using '${this.#config.applicationName}' as the application name.`);
+    } else {
+      logger.checkOk(`Will get the application name from package.json.`);
+    }
 
     if (this.#config.applicationVersion != null) {
       logger.checkOk(`Using '${this.#config.applicationVersion}' as the application version.`);
@@ -96,7 +103,7 @@ export class BuildStep {
     if ( ! this.#readPackageVariables(logger, fetchStep)) {
       return false;
     }
-    logger.info(`Detected application name '${this.#applicationName}' version '${this.#applicationVersion}'`);
+    logger.info(`Using application name '${this.getApplicationName()}' version '${this.getApplicationVersion()}'`);
 
     const installCommand = `${this.#getPackageManager()} install`;
     logger.info(`Installing packages with command '${installCommand}'`);
@@ -127,11 +134,17 @@ export class BuildStep {
   }
 
   getApplicationName(): string {
-    return this.#applicationName;
+    if (this.#config.applicationName != null) {
+      return this.#config.applicationName;
+    }
+    return this.#packageApplicationName;
   }
 
   getApplicationVersion(): string {
-    return this.#applicationVersion;
+    if (this.#config.applicationVersion != null) {
+      return this.#config.applicationVersion;
+    }
+    return this.#packageApplicationVersion;
   }
 
   addVariables(variables: {[key: string]: string}): void {
@@ -155,9 +168,8 @@ export class BuildStep {
       logger.error(`Unable to parse JSON from '${packagePath}'`);
     }
 
-    this.#applicationName = packageJson.name;
-    this.#applicationVersion = packageJson.version;
-
+    this.#packageApplicationName = packageJson.name;
+    this.#packageApplicationVersion = packageJson.version;
     return true;
   }
 }
