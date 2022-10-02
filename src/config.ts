@@ -36,6 +36,7 @@ export interface BuildConfig {
 }
 
 export interface PruneConfig {
+  skip?: boolean;
   patterns?: FilePattern[];
   postPrune?: Commands;  // TODO
 }

@@ -24,8 +24,17 @@ export class PruneStep {
     this.#config = config;
   }
 
+  #isSkip(): boolean {
+    return this.#config.skip;
+  }
+
   async preflightCheck(logger: Logger, prepareStep: PrepareStep): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Prune step (skipping)");
+      return true;
+    }
     logger.subsection("Prune step");
+
     this.#trashPath = path.join(prepareStep.getTempDirectory(), TRASH_DIR_NAME);
 
     if (this.#config.patterns == null) {
@@ -55,7 +64,12 @@ export class PruneStep {
   }
 
   async execute(logger: Logger, fetchStep: FetchStep): Promise<boolean> {
+    if (this.#isSkip()) {
+      logger.subsection("Prune step (skipping)");
+      return true;
+    }
     logger.subsection("Prune step");
+
     logger.info("Pruning files");
 
     shell.cd(fetchStep.getSourcePath());
