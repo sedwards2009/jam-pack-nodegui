@@ -8,7 +8,7 @@ export type Platform = 'macos' | 'linux' | 'windows';
 
 export interface Command {
   platform?: string | string[];
-  command: string;
+  commands: string[];
 }
 
 export type CommandLine = string;

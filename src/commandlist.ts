@@ -37,8 +37,8 @@ export class CommandList {
             return false;
           }
         }
-        if (command.command == null) {
-          logger.checkError(`Invalid or missing 'command' field value in '${command.platform}' in section '${commandsName}'.`);
+        if (command.commands == null) {
+          logger.checkError(`Invalid or missing 'commands' field value in '${command.platform}' in section '${commandsName}'.`);
           return false;
         }
       }
@@ -50,14 +50,15 @@ export class CommandList {
 
   #filteredCommands(): string[] {
     const platform = getPlatform();
-    const commands: string[] = [];
+    let commands: string[] = [];
     for (const item of this.#commands) {
       if ((typeof item) === "string") {
         commands.push(<string>item);
       } else {
         const command = <Command>item;
-        if (command.platform === platform) {
-          commands.push(command.command);
+        // For some reason `command.platform` is coming in as string *object*, not primative. :-/
+        if (command.platform == platform) {
+          commands = commands.concat(command.commands);
         }
       }
     }
