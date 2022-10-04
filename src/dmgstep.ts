@@ -67,7 +67,7 @@ export class DmgStep {
     const appVersion = buildStep.getApplicationVersion();
 
     shell.mkdir(path.join(this.#dmgSourceDirectory, `${appTitle}.app`));
-  
+
     const contentsPath = path.join(this.#dmgSourceDirectory, `${appTitle}.app`, `Contents`);
     shell.mkdir(contentsPath);
     this.#dmgResourcesDirectory = path.join(contentsPath, "Resources");
@@ -189,7 +189,7 @@ export class DmgStep {
   }
 
   addVariables(variables: {[key: string]: string}): void {
-    variables["dmgStep.dmgSourceDirectory"] = this.getDMGSourceDirectory();
+    variables["dmgStep_dmgSourceDirectory"] = this.getDMGSourceDirectory();
   }
 }
 

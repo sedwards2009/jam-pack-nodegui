@@ -131,6 +131,6 @@ export class DebianStep {
   }
 
   addVariables(variables: {[key: string]: string}): void {
-    variables["debianStep.debianSourceDirectory"] = this.getDebianSourceDirectory();
+    variables["debianStep_debianSourceDirectory"] = this.getDebianSourceDirectory();
   }
 }

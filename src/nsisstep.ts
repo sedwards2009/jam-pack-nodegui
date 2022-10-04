@@ -218,7 +218,7 @@ SectionEnd
   }
 
   addVariables(variables: {[key: string]: string}): void {
-    variables["nsisStep.nsisSourceDirectory"] = this.getNSISSourceDirectory();
+    variables["nsisStep_nsisSourceDirectory"] = this.getNSISSourceDirectory();
   }
 }
 
