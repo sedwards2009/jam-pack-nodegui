@@ -45,7 +45,9 @@
     "companyName": "Simonzone",
     "description": "A small app to test NodeGui and installation.",
     "detailColors": "ff0000 000000",
-    "appTitle": "Test NodeGui App"
+    "appTitle": "Test NodeGui App",
+    "extraInstallCommands": ["# Extra install commands"],
+    "extraUninstallCommands": ["#Extra uninstall commands"]
   },
   "appImage": {
     "prePack": [

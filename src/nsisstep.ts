@@ -7,7 +7,6 @@ import fs from 'node:fs';
 import * as path from "node:path";
 import copy from 'recursive-copy';
 import shell from "shelljs";
-import {fileURLToPath} from 'node:url';
 
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';
@@ -17,8 +16,7 @@ import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
 import { PruneStep } from './prunestep.js';
 import { executeCommandAndCaptureOutput, getPlatform } from "./utils.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { path as __dirname } from "./sourcedir.js";
 
 const NSIS_SOURCE_NAME = "nsis_source";
 
@@ -125,6 +123,9 @@ export class NSISStep {
       appName = `"${escapeString(this.#config.appTitle)}" "${escapeStringDoubleAmp(this.#config.appTitle)}"`;
     }
 
+    const extraInstallCommands = this.#config.extraInstallCommands.join("\n") ?? "";
+    const extraUninstallCommands = this.#config.extraUninstallCommands.join("\n") ?? "";
+
     const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
     let uninstallerIconPath = smallIconPath;
@@ -195,9 +196,14 @@ WriteRegDWORD HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${
 IntFmt $0 "0x%08X" $0
 WriteRegDWORD HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "EstimatedSize" "\$0"
 
+${extraInstallCommands}
+
 SectionEnd
 
 Section "Uninstall"
+
+${extraUninstallCommands}
+
 # Remove Start Menu launcher
 Delete "$SMPROGRAMS\\${APP_TITLE}.lnk"
 

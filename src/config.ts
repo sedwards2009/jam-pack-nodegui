@@ -93,6 +93,8 @@ export interface NSISConfig {
   prePack?: Commands;
   companyName?: string;
   description?: string;
+  extraInstallCommands?: string[];
+  extraUninstallCommands?: string[];
   detailColors?: string;
   appTitle?: string;
 }

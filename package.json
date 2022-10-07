@@ -11,7 +11,7 @@
     "build:code": "tsc",
     "build:bundle": "parcel build --target main",
     "clean": "shx rm -rf build dist",
-    "run": "node dist/bundle.cjs",
+    "run": "node dist/bundle.cjs -c test-config.json",
     "test": "yarn run build && yarn node --experimental-vm-modules $(yarn bin jest)"
   },
   "bin": "./dist/bundle.cjs",
