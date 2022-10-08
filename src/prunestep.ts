@@ -18,7 +18,7 @@ const TRASH_DIR_NAME = "trash";
 
 export class PruneStep {
   #config: PruneConfig;
-  #trashPath: string;
+  #trashDirectory: string;
 
   constructor(config: PruneConfig) {
     this.#config = config;
@@ -35,7 +35,7 @@ export class PruneStep {
     }
     logger.subsection("Prune step");
 
-    this.#trashPath = path.join(prepareStep.getTempDirectory(), TRASH_DIR_NAME);
+    this.#trashDirectory = path.join(prepareStep.getTempDirectory(), TRASH_DIR_NAME);
 
     if (this.#config.patterns == null) {
       logger.checkError(`The 'prune' section in the config file doesn't contain a 'patterns' field.`);
@@ -58,7 +58,7 @@ export class PruneStep {
       }
     }
 
-    logger.checkOk(`Using directory '${this.getTrashPath()}' to hold pruned files.`);
+    logger.checkOk(`Using directory '${this.getTrashDirectory()}' to hold pruned files.`);
 
     return true;
   }
@@ -79,7 +79,7 @@ export class PruneStep {
         logger.keep(`Keeping '${resultPath}'`);
       } else {
         logger.prune(`Pruning '${resultPath}'`);
-        const targetPath = path.join(this.#trashPath, resultPath);
+        const targetPath = path.join(this.#trashDirectory, resultPath);
         shell.mkdir("-p", path.dirname(targetPath));
         shell.mv(resultPath, targetPath);
       }
@@ -204,7 +204,7 @@ export class PruneStep {
         nodeguiDeleteList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/Headers`);
         nodeguiDeleteList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/**/Headers/**/*`);
       }
-      
+
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/iconengines/libqsvgicon.dylib");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/imageformats/*.dylib");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/plugins/platforms/*.dylib");
@@ -223,11 +223,11 @@ export class PruneStep {
     return true;
   }
 
-  getTrashPath(): string {
-    return this.#trashPath;
+  getTrashDirectory(): string {
+    return this.#trashDirectory;
   }
 
   addVariables(variables: {[key: string]: string}): void {
-    variables["pruneStep_trashPath"] = this.getTrashPath();
+    variables["pruneStep_trashDirectory"] = this.getTrashDirectory();
   }
 }
