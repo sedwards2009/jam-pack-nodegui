@@ -79,18 +79,16 @@ export class NSISStep {
     }
 
     this.#nsisSourceDirectory = path.join(prepareStep.getTempDirectory(), NSIS_SOURCE_NAME);
-
-    const env: { [key: string]: string } = {};
-    prepareStep.addVariables(env);
-    fetchStep.addVariables(env);
-    buildStep.addVariables(env);
-    pruneStep.addVariables(env);
-    this.addVariables(env);
+    const env = this.#getCommandEnvVariables(prepareStep, fetchStep, buildStep, pruneStep);
     if ( ! await this.#commandList.execute(logger, env)) {
       return false;
     }
 
-    fs.writeFileSync(path.join(prepareStep.getTempDirectory(), "installer.nsi"), this.#getInstallerNsi(buildStep), {encoding: "utf-8"});
+    const installerNsi = await this.#getInstallerNsi(logger, prepareStep, fetchStep, buildStep, pruneStep);
+    if (installerNsi == null) {
+      return false;
+    }
+    fs.writeFileSync(path.join(prepareStep.getTempDirectory(), "installer.nsi"), installerNsi, {encoding: "utf-8"});
 
     shell.cd(prepareStep.getTempDirectory());
     const command = `makensis installer.nsi`;
@@ -100,15 +98,24 @@ export class NSISStep {
       return false;
     }
 
-    // const debBaseName = `${buildStep.getApplicationName()}_${buildStep.getApplicationVersion()}_amd64.deb`;
-    // shell.mv(`${NSIS_SOURCE_NAME}.deb`, debBaseName);
-
     logger.info(`Created NSIS installer: `);
 
     return true;
   }
 
-  #getInstallerNsi(buildStep: BuildStep): string {
+  #getCommandEnvVariables(prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep, pruneStep: PruneStep): { [key: string]: string } {
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    fetchStep.addVariables(env);
+    buildStep.addVariables(env);
+    pruneStep.addVariables(env);
+    this.addVariables(env);
+    return env;
+  }
+
+  async #getInstallerNsi(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep,
+      pruneStep: PruneStep): Promise<string> {
+
     const version = buildStep.getApplicationVersion();
     const APP_NAME = buildStep.getApplicationName();
     const APP_TITLE = buildStep.getApplicationName();
@@ -129,6 +136,25 @@ export class NSISStep {
     const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
     let uninstallerIconPath = smallIconPath;
+
+    logger.info(`Using installer icon from '${installerIconPath}'.`);
+    logger.info(`Using uninstaller icon from '${uninstallerIconPath}'.`);
+
+    if (this.#config.installerIcon != null) {
+      const result = await this.#expandUserPath(this.#config.installerIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
+      if (!result.success) {
+        return null;
+      }
+      installerIconPath = result.path;
+    }
+
+    if (this.#config.uninstallerIcon != null) {
+      const result = await this.#expandUserPath(this.#config.uninstallerIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
+      if (!result.success) {
+        return null;
+      }
+      uninstallerIconPath = result.path;
+    }
 
     const installerScript = `
 !include "MUI2.nsh"
@@ -217,6 +243,19 @@ DeleteRegKey HKLM "Software\\${APP_TITLE}"
 SectionEnd
 `;
     return installerScript;
+  }
+
+  async #expandUserPath(userPath: string, logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep,
+      pruneStep: PruneStep): Promise<{path: string, success: boolean}> {
+
+    const env = this.#getCommandEnvVariables(prepareStep, fetchStep, buildStep, pruneStep);
+    const commandLine = `echo ${userPath}`;
+    const {result, output} = await executeCommandAndCaptureOutput(commandLine, env);
+    if (result !== 0) {
+      logger.error(`Error occurred while running '${commandLine}'.`);
+      return { path: null, success: false};
+    }
+    return { path: output.split("\n")[0], success: true};
   }
 
   getNSISSourceDirectory(): string {

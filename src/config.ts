@@ -97,6 +97,8 @@ export interface NSISConfig {
   extraUninstallCommands?: string[];
   detailColors?: string;
   appTitle?: string;
+  installerIcon?: string;
+  uninstallerIcon?: string;
 }
 
 export interface DMGConfig {
