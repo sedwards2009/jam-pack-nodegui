@@ -76,7 +76,7 @@ export class FetchStep {
     this.#gitSourcePath = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
     shell.cd(prepareStep.getTempDirectory());
-    const branchOption = this.#gitBranch != null ? `-b '${this.#gitBranch}'` : "";
+    const branchOption = this.#gitBranch != null ? `-b ${this.#gitBranch}` : "";
     const command = `git clone --depth 1 ${branchOption} ${this.#gitUrl} ${this.#gitSourceDirectoryName}`;
     logger.info(`Cloning repository with command '${command}'`)
 
