@@ -5,6 +5,8 @@
  */
 import path from "node:path";
 import shell from "shelljs";
+import { BuildStep } from "./buildstep.js";
+import { CommandList } from './commandlist.js';
 import { PruneConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { FileTreeFilter } from "./filetreefilter.js";
@@ -19,9 +21,11 @@ const TRASH_DIR_NAME = "trash";
 export class PruneStep {
   #config: PruneConfig;
   #trashDirectory: string;
+  #commandList: CommandList;
 
   constructor(config: PruneConfig) {
     this.#config = config;
+    this.#commandList = new CommandList(config.postPrune);
   }
 
   #isSkip(): boolean {
@@ -60,10 +64,14 @@ export class PruneStep {
 
     logger.checkOk(`Using directory '${this.getTrashDirectory()}' to hold pruned files.`);
 
+    if ( ! await this.#commandList.preflightCheck(logger, "postPrune")) {
+      return false
+    }
+
     return true;
   }
 
-  async execute(logger: Logger, fetchStep: FetchStep): Promise<boolean> {
+  async execute(logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep): Promise<boolean> {
     if (this.#isSkip()) {
       logger.subsection("Prune step (skipping)");
       return true;
@@ -219,6 +227,16 @@ export class PruneStep {
 
     logger.info("Pruning empty directories");
     await pruneEmptyDirectories(".");
+
+    shell.cd(prepareStep.getTempDirectory());
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    fetchStep.addVariables(env);
+    buildStep.addVariables(env);
+    this.addVariables(env);
+    if ( ! await this.#commandList.execute(logger, env)) {
+      return false;
+    }
 
     return true;
   }

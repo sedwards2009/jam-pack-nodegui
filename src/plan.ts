@@ -191,7 +191,7 @@ export class Plan {
     }
     shell.cd(cwd);
 
-    if ( ! await this.#pruneStep.execute(this.#logger, this.#fetchStep)) {
+    if ( ! await this.#pruneStep.execute(this.#logger, this.#prepareStep, this.#fetchStep, this.#buildStep)) {
       this.#logger.error("Prune step failed.");
       return false;
     }
