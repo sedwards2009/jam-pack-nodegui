@@ -55,6 +55,20 @@ export async function pruneEmptyDirectories(directoryPath: string): Promise<void
   }
 }
 
+export async function pruneSymlinks(directoryPath: string): Promise<void> {
+  const dirEntries = await readdirp.promise(directoryPath, { type: "directories", depth: 1 });
+  for (const dirEntry of dirEntries) {
+    await pruneSymlinks(dirEntry.fullPath);
+  }
+
+  const allEntries = await readdirp.promise(directoryPath, { type: "all", alwaysStat: true, lstat: true, depth: 1 });
+  for (const entry of allEntries) {
+    if (entry.stats.isSymbolicLink()) {
+      shell.rm(entry.fullPath);
+    }
+  }
+}
+
 export function getPlatform(): Platform {
   switch(process.platform) {
     case "win32":

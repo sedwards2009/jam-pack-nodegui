@@ -12,7 +12,7 @@ import { FetchStep } from "./fetchstep.js";
 import { FileTreeFilter } from "./filetreefilter.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
-import { getPlatform, isValidPlatform, pruneEmptyDirectories } from "./utils.js";
+import { getPlatform, isValidPlatform, pruneEmptyDirectories, pruneSymlinks } from "./utils.js";
 
 
 const TRASH_DIR_NAME = "trash";
@@ -224,6 +224,11 @@ export class PruneStep {
     treeFilter.addPattern(nodeguiAcceptList, nodeguiDeleteList);
 
     treeFilter.run(".");
+
+    if (platform === "windows") {
+      logger.info("Pruning symlinks");
+      await pruneSymlinks(".");
+    }
 
     logger.info("Pruning empty directories");
     await pruneEmptyDirectories(".");
