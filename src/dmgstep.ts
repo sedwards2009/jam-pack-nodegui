@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import * as path from "node:path";
 import copy from 'recursive-copy';
 import shell from "shelljs";
+import appdmg from "appdmg";
+
 import { AddLauncherStep } from './addlauncherstep.js';
 
 import { BuildStep } from "./buildstep.js";
@@ -24,6 +26,7 @@ export class DmgStep {
   #commandList: CommandList;
   #dmgSourceDirectory = "";
   #dmgResourcesDirectory = "";
+  #dmgMacOSDirectory = "";
 
   constructor(config: DMGConfig) {
     this.#config = config;
@@ -72,7 +75,8 @@ export class DmgStep {
     shell.mkdir(contentsPath);
     this.#dmgResourcesDirectory = path.join(contentsPath, "Resources");
     shell.mkdir(this.#dmgResourcesDirectory);
-    shell.mkdir(path.join(contentsPath, "MacOS"));
+    this.#dmgMacOSDirectory = path.join(contentsPath, "MacOS");
+    shell.mkdir(this.#dmgMacOSDirectory);
 
     try {
       await copy(fetchStep.getSourcePath(), this.#dmgResourcesDirectory, {
@@ -95,7 +99,7 @@ export class DmgStep {
     const plistContents = this.#getPlistFile(buildStep, "jam-app.icns");
     fs.writeFileSync(path.join(contentsPath, "Info.plist"), plistContents, {encoding: 'utf8'});
 
-    const volumeIconPath = path.join(__dirname, "../resources/macos/.VolumeIcon.icns");
+    const volumeIconPath = path.join(__dirname, "../resources/macos/jam-app.icns"); //.VolumeIcon.icns");
     const backgroundPath = path.join(__dirname, "../resources/macos/dmg_background.png");
     const appdmgConfig = {
       "title": appTitle,
@@ -120,10 +124,10 @@ export class DmgStep {
     }
 
     shell.cd(prepareStep.getTempDirectory());
-    const command = `appdmg appdmg.json '${appTitle}_${appVersion}.dmg'`;
-    const result = shell.exec(command);
-    if (result.code !== 0) {
-      logger.error(`Something went wrong while running command '${command}'`);
+    try {
+      await this.#runAppdmg("appdmg.json", `${appTitle}_${appVersion}.dmg`);
+    } catch(err) {
+      logger.error(`Something went wrong while running command appdmg. ${err}`);
       return false;
     }
 
@@ -183,13 +187,35 @@ export class DmgStep {
 </plist>
 `;
   }
+  async #runAppdmg(sourceJson: string, destination: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const ee = appdmg({ source: sourceJson, target: destination });
+      ee.on('finish', function () {
+        resolve();
+      });
+
+      ee.on('error', function (err) {
+        reject(err);
+      });
+    });
+  }
 
   getDMGSourceDirectory(): string {
     return this.#dmgSourceDirectory;
   }
 
+  getDMGResourcesDirectory(): string {
+    return this.#dmgResourcesDirectory;
+  }
+
+  getDMGMacOSDirectory(): string {
+    return this.#dmgMacOSDirectory;
+  }
+
   addVariables(variables: {[key: string]: string}): void {
     variables["dmgStep_dmgSourceDirectory"] = this.getDMGSourceDirectory();
+    variables["dmgStep_dmgMacOSDirectory"] = this.getDMGMacOSDirectory();
+    variables["dmgStep_dmgResourcesDirectory"] = this.getDMGResourcesDirectory();
   }
 }
 
