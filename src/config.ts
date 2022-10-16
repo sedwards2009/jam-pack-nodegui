@@ -104,6 +104,7 @@ export interface NSISConfig {
 export interface DMGConfig {
   skip?: boolean;
   prePack?: Commands;
+  applicationIcon?:string;
   cfBundleDisplayName?: string;
   cfBundleDevelopmentRegion?: string;
   cfBundleExecutable?: string;

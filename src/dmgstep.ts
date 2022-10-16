@@ -10,7 +10,6 @@ import shell from "shelljs";
 import appdmg from "appdmg";
 
 import { AddLauncherStep } from './addlauncherstep.js';
-
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';
 import { DMGConfig } from "./config.js";
@@ -18,7 +17,7 @@ import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";
 import { PruneStep } from './prunestep.js';
-import { checkWhichCommand, getPlatform } from "./utils.js";
+import { executeCommandAndCaptureOutput, getPlatform } from "./utils.js";
 
 
 export class DmgStep {
@@ -94,12 +93,21 @@ export class DmgStep {
       shell.mv(launcherPath, newLauncherPath);
     }
 
-    shell.cp(path.join(__dirname, "../resources/macos/jam-app.icns"), path.join(this.#dmgResourcesDirectory, "jam-app.icns"));
+    let appIcon = path.join(__dirname, "../resources/macos/jam-app.icns");
+    if (this.#config.applicationIcon != null) {
+      const result = await this.#expandUserPath(this.#config.applicationIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
+      if ( ! result.success) {
+        return false;
+      }
+      appIcon = result.path;
+    }
+    const appIconFilename = path.basename(appIcon);
+    shell.cp(appIcon, path.join(this.#dmgResourcesDirectory, appIconFilename));
 
-    const plistContents = this.#getPlistFile(buildStep, "jam-app.icns");
+    const plistContents = this.#getPlistFile(buildStep, appIconFilename);
     fs.writeFileSync(path.join(contentsPath, "Info.plist"), plistContents, {encoding: 'utf8'});
 
-    const volumeIconPath = path.join(__dirname, "../resources/macos/jam-app.icns"); //.VolumeIcon.icns");
+    const volumeIconPath = appIcon;
     const backgroundPath = path.join(__dirname, "../resources/macos/dmg_background.png");
     const appdmgConfig = {
       "title": appTitle,
@@ -113,12 +121,7 @@ export class DmgStep {
     fs.writeFileSync(path.join(prepareStep.getTempDirectory(), "appdmg.json"), JSON.stringify(appdmgConfig),
       {encoding: "utf-8"});
 
-    const env: { [key: string]: string } = {};
-    prepareStep.addVariables(env);
-    fetchStep.addVariables(env);
-    buildStep.addVariables(env);
-    pruneStep.addVariables(env);
-    this.addVariables(env);
+    const env = this.#getCommandEnvVariables(prepareStep, fetchStep, buildStep, pruneStep);
     if ( ! await this.#commandList.execute(logger, env)) {
       return false;
     }
@@ -199,6 +202,29 @@ export class DmgStep {
       });
     });
   }
+
+  #getCommandEnvVariables(prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep, pruneStep: PruneStep): { [key: string]: string } {
+    const env: { [key: string]: string } = {};
+    prepareStep.addVariables(env);
+    fetchStep.addVariables(env);
+    buildStep.addVariables(env);
+    pruneStep.addVariables(env);
+    this.addVariables(env);
+    return env;
+  }
+
+  async #expandUserPath(userPath: string, logger: Logger, prepareStep: PrepareStep, fetchStep: FetchStep, buildStep: BuildStep,
+    pruneStep: PruneStep): Promise<{path: string, success: boolean}> {
+
+  const env = this.#getCommandEnvVariables(prepareStep, fetchStep, buildStep, pruneStep);
+  const commandLine = `echo ${userPath}`;
+  const {result, output} = await executeCommandAndCaptureOutput(commandLine, env);
+  if (result !== 0) {
+    logger.error(`Error occurred while running '${commandLine}'.`);
+    return { path: null, success: false};
+  }
+  return { path: output.split("\n")[0], success: true};
+}
 
   getDMGSourceDirectory(): string {
     return this.#dmgSourceDirectory;
