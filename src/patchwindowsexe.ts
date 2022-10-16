@@ -2,7 +2,7 @@
  * This file is mostly `patchQode.ts` from https://github.com/nodegui/packer
  * which is published under the MIT license.
  */
-import * as fs from "node:fs";
+import * as fs from "fs";
 
 const PE_SIGNATURE_OFFSET_LOCATION = 0x3c;
 

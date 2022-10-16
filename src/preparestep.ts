@@ -3,8 +3,8 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import * as path from "node:path";
-import shell from "shelljs";
+import * as path from "path";
+import * as shell from "shelljs";
 
 import { PrepareConfig } from "./config.js";
 import { Logger } from "./logger.js";

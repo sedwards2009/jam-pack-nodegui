@@ -3,11 +3,8 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import shell from "shelljs";
-import minimatch from "minimatch";
-
-const Minimatch = minimatch.Minimatch;
-type Minimatch = minimatch.Minimatch;
+import * as shell from "shelljs";
+import { Minimatch } from "minimatch";
 
 
 interface PatternSet {

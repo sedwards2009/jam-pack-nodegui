@@ -3,9 +3,9 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import fs from "node:fs";
-import path from "node:path";
-import shell from "shelljs";
+import * as fs from "fs";
+import * as path from "path";
+import * as shell from "shelljs";
 
 import { BuildConfig } from "./config.js";
 import { CommandList } from './commandlist.js';

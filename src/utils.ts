@@ -6,7 +6,7 @@
 import { execute, UserOptions } from "@yarnpkg/shell";
 import {PassThrough} from 'stream';
 import readdirp from 'readdirp';
-import shell from "shelljs";
+import * as shell from "shelljs";
 import { Platform } from "./config";
 import { Logger } from "./logger";
 

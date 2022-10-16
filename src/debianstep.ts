@@ -3,10 +3,10 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import fs from 'node:fs';
-import * as path from "node:path";
-import copy from 'recursive-copy';
-import shell from "shelljs";
+import * as fs from "fs";
+import * as path from "path";
+const copy = require('recursive-copy');
+import * as shell from "shelljs";
 
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';

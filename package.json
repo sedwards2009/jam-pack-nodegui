@@ -1,22 +1,20 @@
 {
   "name": "jam-pack-nodegui",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Tool to package NodeGui applications",
-  "source": "build/main.js",
-  "main": "dist/bundle.cjs",
+  "main": "dist/main.js",
   "author": "Simon Edwards <simon@simonzone.com>",
   "license": "MIT",
   "scripts": {
-    "build": "yarn run build:code && yarn run build:bundle",
+    "build": "yarn run build:code",
     "build:code": "tsc",
-    "build:bundle": "parcel build --target main",
-    "clean": "shx rm -rf build dist",
-    "run": "node dist/bundle.cjs -c test-config.json",
+    "clean": "shx rm -rf dist",
+    "run": "node dist/main.js -c test-config.json",
     "test": "yarn run build && yarn node --experimental-vm-modules $(yarn bin jest)"
   },
-  "bin": "./dist/bundle.cjs",
+  "bin": "./dist/main.js",
   "files": [
-    "dist/bundle.cjs",
+    "dist/*.js",
     "README.md",
     "LICENSE.txt"
   ],
@@ -36,7 +34,6 @@
     "@types/node": "^18.7.13",
     "@types/shelljs": "^0.8.11",
     "jest": "27.5.1",
-    "parcel": "^2.7.0",
     "shx": "^0.3.4",
     "typescript": "^4.7.4"
   },

@@ -3,7 +3,7 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import shell from "shelljs";
+import * as shell from "shelljs";
 
 import { QuietQodeConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";

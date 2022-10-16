@@ -3,8 +3,8 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import fs from 'node:fs';
-import shell from "shelljs";
+import * as fs from 'fs';
+import * as shell from "shelljs";
 import { AddLauncherStep } from './addlauncherstep.js';
 import { AppImageStep } from './appimagestep.js';
 import { BuildStep } from './buildstep.js';

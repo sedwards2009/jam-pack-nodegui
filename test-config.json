@@ -34,11 +34,7 @@
       "Description": "The swiss army chainsaw of terminal emulators"
     },
     "prePack": [
-      "echo \"Hello ${buildStep_applicationName} v${buildStep_applicationVersion}\"",
-      {
-        "platform": "windows",
-        "command": "echo \"Hello windows\""
-      }
+      "echo \"Hello ${buildStep_applicationName} v${buildStep_applicationVersion}\""
     ]
   },
   "nsis": {
@@ -51,8 +47,8 @@
   },
   "appImage": {
     "prePack": [
-      "cp $pruneStep_trashPath/packaging/test-nodegui-app.desktop $appImageStep_appImageSourceDirectory",
-      "cp $pruneStep_trashPath/packaging/test-nodegui-app.png $appImageStep_appImageSourceDirectory"
+      "cp $pruneStep_trashDirectory/packaging/test-nodegui-app.desktop $appImageStep_appImageSourceDirectory",
+      "cp $pruneStep_trashDirectory/packaging/test-nodegui-app.png $appImageStep_appImageSourceDirectory"
     ]
   },
   "dmg" : {

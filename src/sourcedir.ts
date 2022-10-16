@@ -3,26 +3,11 @@
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
-import * as nodePath from "node:path";
-import {fileURLToPath} from "node:url";
+import * as nodePath from "path";
 
 declare const __dirname: string;  // Common JS
 
-// This is a bit of a hack to find the path to the source code and other
-// resources in a way that works during development and also from a
-// packaged version.
-// The 'if()' below is another hack to make this code work if it is running
-// as ESM or Node style commonjs, which can happen when bundlers are involved
-// and the code suddenly is being loaded as cjs. esbuild can convert ESM to
-// cjs but it does support translating `import.meta.url`. So we test for it.
-let dirPath = "";
-if (__dirname !== undefined) {
-  // Common JS environment.
-  dirPath = __dirname;
-} else {
-  dirPath = fileURLToPath(import.meta.url).slice(0,-12);
-}
-export const path = dirPath;
+export const path = __dirname;
 
 let posixSourcePath = path;
 if (process.platform === "win32") {
