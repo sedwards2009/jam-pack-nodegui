@@ -65,7 +65,7 @@ export class DmgStep {
     logger.info("Copying source to DMG directory.");
 
     shell.mkdir(this.#dmgSourceDirectory);
-    const appTitle = buildStep.getApplicationName();
+    const appTitle = this.#config.applicationTitle ?? buildStep.getApplicationName();
     const appVersion = buildStep.getApplicationVersion();
 
     shell.mkdir(path.join(this.#dmgSourceDirectory, `${appTitle}.app`));
@@ -140,7 +140,7 @@ export class DmgStep {
   }
 
   #getPlistFile(buildStep: BuildStep, cfBundleIconFile: string): string {
-    const appTitle = buildStep.getApplicationName();
+    const appTitle = this.#config.applicationTitle ?? buildStep.getApplicationName();
     const appVersion = buildStep.getApplicationVersion();
 
     const cfBundleDisplayName = this.#config.cfBundleDisplayName ?? appTitle;
