@@ -246,5 +246,5 @@ export class DmgStep {
 }
 
 function xmlEncode(s: string): string {
-  return s;
+  return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
