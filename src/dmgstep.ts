@@ -7,7 +7,6 @@ import fs from 'node:fs';
 import * as path from "node:path";
 import copy from 'recursive-copy';
 import shell from "shelljs";
-import appdmg from "appdmg";
 
 import { AddLauncherStep } from './addlauncherstep.js';
 import { BuildStep } from "./buildstep.js";
@@ -191,7 +190,8 @@ export class DmgStep {
 `;
   }
   async #runAppdmg(sourceJson: string, destination: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
+      const appdmg = require("appdmg"); // Only availabeon Windows
       const ee = appdmg({ source: sourceJson, target: destination });
       ee.on('finish', function () {
         resolve();
