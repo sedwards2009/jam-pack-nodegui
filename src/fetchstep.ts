@@ -12,12 +12,20 @@ import { PrepareStep } from "./preparestep.js";
 import { executeCommandAndCaptureOutput } from "./utils.js";
 
 
+interface GitPosition {
+  url: string;
+  branch?: string;
+  hash?:string;
+}
+
+
 export class FetchStep {
   #config: FetchConfig;
   #gitSourceDirectoryName: string = "git_source";
   #gitSourcePath: string = null;
   #gitUrl: string = null;
   #gitBranch: string = null;
+  #gitHash: string = null;
   #tempDirectory: string = null;
   #commandList: CommandList;
 
@@ -66,27 +74,57 @@ export class FetchStep {
     if (this.#config.gitUrl != null) {
       this.#gitUrl = this.#config.gitUrl;
       this.#gitBranch = this.#config.gitBranch != null ? this.#config.gitBranch : null;
+      this.#gitHash = null;
     } else {
-      const { url, branch } = await this.#readCwdGitConfig(logger);
+      const gitPosition = await this.#readCwdGitConfig(logger);
+      if (gitPosition == null) {
+        return false;
+      }
+      const { url, branch, hash } = gitPosition;
       this.#gitUrl = url;
       this.#gitBranch = branch;
+      this.#gitHash = hash;
     }
 
     logger.info(`Using git url: '${this.#gitUrl}'`);
-    logger.info(`Using git branch: '${this.#gitBranch}'`);
+    if (this.#gitBranch != null) {
+      logger.info(`Using git branch: '${this.#gitBranch}'`);
+    }
+    if (this.#gitHash != null) {
+      logger.info(`Using git hash: '${this.#gitHash}'`);
+    }
 
     this.#tempDirectory = prepareStep.getTempDirectory();
     this.#gitSourcePath = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
     shell.cd(prepareStep.getTempDirectory());
-    const branchOption = this.#gitBranch != null ? `-b ${this.#gitBranch}` : "";
-    const command = `git clone --depth 1 ${branchOption} ${this.#gitUrl} ${this.#gitSourceDirectoryName}`;
-    logger.info(`Cloning repository with command '${command}'`)
 
-    const result = shell.exec(command);
-    if (result.code !== 0) {
-      logger.error(`Something went wrong while running command '${command}'`);
-      return false;
+    if (this.#gitHash != null) {
+      const command = `git clone ${this.#gitUrl} ${this.#gitSourceDirectoryName}`;
+      logger.info(`Cloning complete Git repository with command '${command}'`)
+      const result = shell.exec(command);
+      if (result.code !== 0) {
+        logger.error(`Something went wrong while running command '${command}'`);
+        return false;
+      }
+
+      const checkoutCommand = `git checkout ${this.#gitHash}`;
+      const checkoutResult = shell.exec(checkoutCommand);
+      if (checkoutResult.code !== 0) {
+        logger.error(`Something went wrong while running command '${checkoutCommand}'`);
+        return false;
+      }
+
+    } else {
+      const branchOption = this.#gitBranch != null ? `-b ${this.#gitBranch}` : "";
+      const command = `git clone --depth 1 ${branchOption} ${this.#gitUrl} ${this.#gitSourceDirectoryName}`;
+      logger.info(`Shallow cloning Git repository with command '${command}'`)
+
+      const result = shell.exec(command);
+      if (result.code !== 0) {
+        logger.error(`Something went wrong while running command '${command}'`);
+        return false;
+      }
     }
 
     const env: { [key: string]: string } = {};
@@ -99,7 +137,7 @@ export class FetchStep {
     return true;
   }
 
-  async #readCwdGitConfig(logger: Logger): Promise<{ url: string; branch: string; }> {
+  async #readCwdGitConfig(logger: Logger): Promise<GitPosition> {
     const urlCommand = "git config --get remote.origin.url";
     const {result: urlReturnCode, output: url } = await executeCommandAndCaptureOutput(urlCommand);
     if (urlReturnCode !== 0) {
@@ -114,16 +152,18 @@ export class FetchStep {
       return null;
     }
     let branch = branchOutput.trim();
+    let hash: string = null;
     if (branch === "") {
+      branch = null;
       const headCommand = "git rev-parse --short HEAD";
       const {result: headReturnCode, output: headOutput } = await executeCommandAndCaptureOutput(headCommand);
       if (headReturnCode !== 0) {
         logger.error(`An error occurred while running command '${headCommand}': ${branchOutput}`);
         return null;
       }
-      branch = headOutput.trim();
+      hash = headOutput.trim();
     }
-    return { url: url.trim(), branch };
+    return { url: url.trim(), branch, hash };
   }
 
   getSourcePath(): string {
