@@ -72,6 +72,9 @@ export class FetchStep {
       this.#gitBranch = branch;
     }
 
+    logger.info(`Using git url: '${this.#gitUrl}'`);
+    logger.info(`Using git branch: '${this.#gitBranch}'`);
+
     this.#tempDirectory = prepareStep.getTempDirectory();
     this.#gitSourcePath = path.join(this.#tempDirectory, this.#gitSourceDirectoryName);
 
@@ -98,20 +101,24 @@ export class FetchStep {
 
   async #readCwdGitConfig(logger: Logger): Promise<{ url: string; branch: string; }> {
     const urlCommand = "git config --get remote.origin.url";
-    const {result: urlResult, output: url } = await executeCommandAndCaptureOutput(urlCommand);
-    if (urlResult !== 0) {
+    const {result: urlReturnCode, output: url } = await executeCommandAndCaptureOutput(urlCommand);
+    if (urlReturnCode !== 0) {
       logger.error(`An error occurred while running command '${urlCommand}': ${url}`);
       return null;
     }
 
     const branchCommand = "git branch --show-current";
-    const {result: resultBranch, output: branch } = await executeCommandAndCaptureOutput(branchCommand);
-    if (resultBranch !== 0) {
-      logger.error(`An error occurred while running command '${urlCommand}': ${branch}`);
+    const {result: branchReturnCode, output: branchOutput } = await executeCommandAndCaptureOutput(branchCommand);
+    if (branchReturnCode !== 0) {
+      logger.error(`An error occurred while running command '${urlCommand}': ${branchOutput}`);
       return null;
     }
-
-    return { url: url.trim(), branch: branch.trim() };
+    const branch = branchOutput.trim();
+    if (branch === "") {
+      logger.error(`Unable to determine the current git branch. (Response from '${branchCommand}' was: '${branchOutput}')`);
+      return null;
+    }
+    return { url: url.trim(), branch };
   }
 
   getSourcePath(): string {

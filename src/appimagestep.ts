@@ -11,7 +11,7 @@ import { AddLauncherStep } from './addlauncherstep.js';
 
 import { BuildStep } from "./buildstep.js";
 import { CommandList } from './commandlist.js';
-import { AppImageConfig, DebianConfig } from "./config.js";
+import { AppImageConfig } from "./config.js";
 import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { PrepareStep } from "./preparestep.js";

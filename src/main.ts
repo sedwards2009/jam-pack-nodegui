@@ -27,16 +27,16 @@ async function main(): Promise<void> {
   program.version("0.1.0");
   program.option("-c, --config <config>", "Path to config file");
   program.option("-D, --define <setting>", "Define a setting. (Overrides the config file)", collectSetting, []);
-  program.action(() => {
-    execute(program, Action.package);
+  program.action(async () => {
+    process.exit(await execute(program, Action.package) ? 0 : 1);
   });
   program.command("check").action(async () => {
-    await execute(program, Action.check);
+    process.exit(await execute(program, Action.check) ? 0 : 1);
   });
   await program.parseAsync();
 }
 
-async function execute(program: Command, action: Action): Promise<void> {
+async function execute(program: Command, action: Action): Promise<boolean> {
   const options = program.opts();
   const configPath = options.config ?? "test-config.json";
 
@@ -50,11 +50,9 @@ async function execute(program: Command, action: Action): Promise<void> {
 
   switch(action) {
     case Action.check:
-      await plan.preflightCheck();
-      break;
+      return await plan.preflightCheck();
     case Action.package:
-      await plan.execute();
-      break;
+      return await plan.execute();
   }
 }
 main();
