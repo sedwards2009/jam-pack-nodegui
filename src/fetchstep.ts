@@ -107,6 +107,7 @@ export class FetchStep {
         logger.error(`Something went wrong while running command '${command}'`);
         return false;
       }
+      shell.cd(this.#gitSourceDirectoryName);
 
       const checkoutCommand = `git checkout ${this.#gitHash}`;
       const checkoutResult = shell.exec(checkoutCommand);
