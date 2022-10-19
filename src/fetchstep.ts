@@ -113,10 +113,15 @@ export class FetchStep {
       logger.error(`An error occurred while running command '${urlCommand}': ${branchOutput}`);
       return null;
     }
-    const branch = branchOutput.trim();
+    let branch = branchOutput.trim();
     if (branch === "") {
-      logger.error(`Unable to determine the current git branch. (Response from '${branchCommand}' was: '${branchOutput}')`);
-      return null;
+      const headCommand = "git rev-parse --short HEAD";
+      const {result: headReturnCode, output: headOutput } = await executeCommandAndCaptureOutput(headCommand);
+      if (headReturnCode !== 0) {
+        logger.error(`An error occurred while running command '${headCommand}': ${branchOutput}`);
+        return null;
+      }
+      branch = headOutput.trim();
     }
     return { url: url.trim(), branch };
   }
