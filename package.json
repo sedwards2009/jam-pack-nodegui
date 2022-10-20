@@ -16,7 +16,8 @@
   "files": [
     "dist/*.js",
     "README.md",
-    "LICENSE.txt"
+    "LICENSE.txt",
+    "resources/**/*"
   ],
   "dependencies": {
     "@yarnpkg/shell": "^3.2.4",
