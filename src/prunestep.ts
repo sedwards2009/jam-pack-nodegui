@@ -158,6 +158,7 @@ export class PruneStep {
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6PrintSupport.so*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6Sql.so*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6Svg.so*");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6SvgWidgets.so*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6Widgets.so*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libQt6XcbQpa.so*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/libicudata.so*");
@@ -192,6 +193,7 @@ export class PruneStep {
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt6Core.dll");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt6Gui.dll");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt6Svg.dll");
+      nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt6SvgWidgets.dll");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/Qt6Widgets.dll");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qsvgicon.dll");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/miniqt/**/qwindows.dll");
@@ -206,7 +208,7 @@ export class PruneStep {
       nodeguiAcceptList.push("node_modules/@nodegui/qode/binaries/*");
       nodeguiAcceptList.push("node_modules/@nodegui/nodegui/build/Release/nodegui_core.node");
 
-      for (const lib of ["QtConcurrent", "QtCore", "QtDBus", "QtGui", "QtPrintSupport", "QtSvg", "QtWidgets"]) {
+      for (const lib of ["QtConcurrent", "QtCore", "QtDBus", "QtGui", "QtPrintSupport", "QtSvg", "QtSvgWidgets", "QtWidgets"]) {
         nodeguiAcceptList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/**/*`);
 
         nodeguiDeleteList.push(`node_modules/@nodegui/nodegui/miniqt/**/${lib}.framework/Headers`);
