@@ -1117,7 +1117,6 @@ __metadata:
     repeat-string: ^1.5.4
   bin:
     appdmg: bin/appdmg.js
-  checksum: 97f95f0cb56c77643a335004e5ad41ff71bfd39625222058e9a0dba86ea83ad97d0dea04fcf98afa2cc8418779b5718c85486a974405e2e9c6d19bc450ef6067
   conditions: os=darwin
   languageName: node
   linkType: hard
@@ -2075,7 +2074,6 @@ __metadata:
   resolution: "fs-xattr@npm:0.3.1"
   dependencies:
     node-gyp: latest
-  checksum: 34ea354d3a61457a62b1447c765c710b8c8b3cf3cd130e6bb4e2747582a47607361e8c9c2c19ceabca491b93155ef0a972917443d6dead77c0139f07d5e84fde
   conditions: "!os=win32"
   languageName: node
   linkType: hard
@@ -2644,6 +2642,11 @@ __metadata:
     shelljs: ^0.8.5
     shx: ^0.3.4
     typescript: ^4.7.4
+  dependenciesMeta:
+    appdmg:
+      optional: true
+    rcedit:
+      optional: true
   bin:
     jam-pack-nodegui: ./dist/main.js
   languageName: unknown
@@ -3305,7 +3308,6 @@ __metadata:
   dependencies:
     nan: ^2.4.0
     node-gyp: latest
-  checksum: b9ab2e2b7365b4a5a8572382deebc9fe8b0708e8cdf1e0d2748570cbf96a45832b03b33e5708d3861f01f5b16058cee02bb7fcd40add0f00ec102075b7a71332
   conditions: os=darwin
   languageName: node
   linkType: hard
