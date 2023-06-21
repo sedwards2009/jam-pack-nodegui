@@ -12,7 +12,8 @@ import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { getPlatform } from "./utils.js";
 import { switchToGuiSubsystem } from "./patchwindowsexe.js";
-import rcedit, { Options as RceditOptions, VersionStringOptions as RceditVersionStringOptions } from 'rcedit';
+import { Options as RceditOptions, VersionStringOptions as RceditVersionStringOptions } from 'rcedit';
+const rcedit = require('rcedit');
 import { path as __dirname } from "./sourcedir.js";
 
 
