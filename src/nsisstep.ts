@@ -130,8 +130,8 @@ export class NSISStep {
       appName = `"${escapeString(this.#config.appTitle)}" "${escapeStringDoubleAmp(this.#config.appTitle)}"`;
     }
 
-    const extraInstallCommands = this.#config.extraInstallCommands.join("\n") ?? "";
-    const extraUninstallCommands = this.#config.extraUninstallCommands.join("\n") ?? "";
+    const extraInstallCommands = this.#config.extraInstallCommands?.join("\n") ?? "";
+    const extraUninstallCommands = this.#config.extraUninstallCommands?.join("\n") ?? "";
 
     const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
