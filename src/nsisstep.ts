@@ -84,6 +84,18 @@ export class NSISStep {
       return false;
     }
 
+    // Position the shortcut icon
+    const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
+    let shortcutIconPath = smallIconPath;
+    if (this.#config.shortcutIcon != null) {
+      const result = await this.#expandUserPath(this.#config.shortcutIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
+      if (!result.success) {
+        return false;
+      }
+      shortcutIconPath = result.path;
+    }
+    await copy(shortcutIconPath, path.join(nsisSourcePath, "shortcut.ico"));
+
     const installerNsi = await this.#getInstallerNsi(logger, prepareStep, fetchStep, buildStep, pruneStep);
     if (installerNsi == null) {
       return false;
@@ -136,9 +148,7 @@ export class NSISStep {
     const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
     let uninstallerIconPath = smallIconPath;
-
-    logger.info(`Using installer icon from '${installerIconPath}'.`);
-    logger.info(`Using uninstaller icon from '${uninstallerIconPath}'.`);
+    let shortcutIconPath = smallIconPath;
 
     if (this.#config.installerIcon != null) {
       const result = await this.#expandUserPath(this.#config.installerIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
@@ -155,6 +165,9 @@ export class NSISStep {
       }
       uninstallerIconPath = result.path;
     }
+
+    logger.info(`Using installer icon from '${installerIconPath}'.`);
+    logger.info(`Using uninstaller icon from '${uninstallerIconPath}'.`);
 
     const installerScript = `
 !include "MUI2.nsh"
@@ -196,7 +209,7 @@ File /r "${NSIS_SOURCE_NAME}\\*"
 
 WriteUninstaller "$INSTDIR\\Uninstall.exe"
 
-createShortCut "$SMPROGRAMS\\${APP_TITLE}.lnk" "$INSTDIR\\${APP_NAME}.exe" "" "$INSTDIR\\main\\resources\\logo\\extraterm_small_logo.ico"
+createShortCut "$SMPROGRAMS\\${APP_TITLE}.lnk" "$INSTDIR\\${APP_NAME}.exe" "" "$INSTDIR\\shortcut.ico"
 
 WriteRegStr HKLM "Software\\${APP_TITLE}" "InstallLocation" "$\\"$INSTDIR$\\""
 WriteRegStr HKLM "Software\\${APP_TITLE}" "Version" "${version}"
@@ -206,7 +219,7 @@ WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${AP
 WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "UninstallString" "$\\"$INSTDIR\\uninstall.exe$\\""
 WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "QuietUninstallString" "$\\"$INSTDIR\\uninstall.exe$\\" /S"
 WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "InstallLocation" "$\\"$INSTDIR$\\""
-WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "DisplayIcon" "$\\"$INSTDIR\\main\\resources\\logo\\extraterm_small_logo.ico$\\""
+WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "DisplayIcon" "$\\"$INSTDIR\\shortcut.ico$\\""
 WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "Publisher" "\${COMPANYNAME}"
 
 WriteRegStr HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\${APPNAME}" "DisplayVersion" "\${VERSIONMAJOR}.\${VERSIONMINOR}.\${VERSIONBUILD}"

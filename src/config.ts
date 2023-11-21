@@ -99,6 +99,7 @@ export interface NSISConfig {
   appTitle?: string;
   installerIcon?: string;
   uninstallerIcon?: string;
+  shortcutIcon?: string;
 }
 
 export interface DMGConfig {
