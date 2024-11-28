@@ -131,6 +131,7 @@ export class NSISStep {
     const version = buildStep.getApplicationVersion();
     const APP_NAME = buildStep.getApplicationName();
     const APP_TITLE = buildStep.getApplicationName();
+    const PATH_INSTALLER = this.#config.pathInstaller ?? '$PROGRAMFILES64';
     const windowsBuildDirName = `${APP_NAME}-${version}-win32-x64`;
     const versionSplit = version.split(".");
     const majorVersion = versionSplit[0];
@@ -145,7 +146,7 @@ export class NSISStep {
     const extraInstallCommands = this.#config.extraInstallCommands?.join("\n") ?? "";
     const extraUninstallCommands = this.#config.extraUninstallCommands?.join("\n") ?? "";
 
-    const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
+    const smallIconPath = this.#config.smallIcon ?? path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
     let uninstallerIconPath = smallIconPath;
     let shortcutIconPath = smallIconPath;
@@ -198,7 +199,7 @@ ${this.#config.detailColors != null ? '!define MUI_INSTFILESPAGE_COLORS "' + thi
 Name ${appName}
 BrandingText " "
 OutFile "${APP_NAME}-setup-${version}.exe"
-InstallDir "$PROGRAMFILES64\\${APP_TITLE}"
+InstallDir "${PATH_INSTALLER}\\${APP_TITLE}"
 InstallDirRegKey HKLM "Software\\${APP_TITLE}" "InstallLocation"
 
 ShowInstDetails show # This will always show the installation details.
