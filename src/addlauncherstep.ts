@@ -12,6 +12,7 @@ import { FetchStep } from "./fetchstep.js";
 import { Logger } from "./logger.js";
 import { getPlatform } from "./utils.js";
 import { switchToGuiSubsystem } from "./patchwindowsexe.js";
+import { PruneStep } from "./prunestep.js";
 import { Options as RceditOptions, VersionStringOptions as RceditVersionStringOptions } from 'rcedit';
 const rcedit = require('rcedit');
 import { path as __dirname } from "./sourcedir.js";
@@ -46,7 +47,7 @@ export class AddLauncherStep {
     return true;
   }
 
-  async execute(logger: Logger, fetchStep: FetchStep, buildStep: BuildStep): Promise<boolean> {
+  async execute(logger: Logger, fetchStep: FetchStep, buildStep: BuildStep, pruneStep: PruneStep): Promise<boolean> {
     if (this.#config.skip) {
       logger.subsection("Add Launcher step (skipping)");
       return true;
@@ -94,7 +95,7 @@ export class AddLauncherStep {
     if (platform === "windows") {
       switchToGuiSubsystem(destPath);
 
-      let iconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
+      let iconPath = path.join(pruneStep.getTrashDirectory(), 'packaging', this.#config.windowsIcon) ?? path.join(__dirname, "../resources/icons/small_logo.ico");
       const options: RceditOptions = {
         icon: iconPath
       };
