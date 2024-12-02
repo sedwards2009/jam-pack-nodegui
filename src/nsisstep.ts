@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Simon Edwards <simon@simonzone.com>
+ * Copyright 2023 Simon Edwards <simon@simonzone.com>
  *
  * This source code is licensed under the MIT license which is detailed in the LICENSE.txt file.
  */
@@ -149,7 +149,6 @@ export class NSISStep {
     const smallIconPath = path.join(__dirname, "../resources/icons/small_logo.ico");
     let installerIconPath = smallIconPath;
     let uninstallerIconPath = smallIconPath;
-    let shortcutIconPath = smallIconPath;
 
     if (this.#config.installerIcon != null) {
       const result = await this.#expandUserPath(this.#config.installerIcon, logger, prepareStep, fetchStep, buildStep, pruneStep);
