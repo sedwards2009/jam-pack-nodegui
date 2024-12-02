@@ -99,6 +99,7 @@ export interface NSISConfig {
   appTitle?: string;
   installerIcon?: string;
   uninstallerIcon?: string;
+  pathInstaller?: string;
   shortcutIcon?: string;
 }
 

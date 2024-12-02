@@ -204,7 +204,7 @@ export class Plan {
     shell.cd(cwd);
 
     if (this.#addLauncherStep != null && ( ! await this.#addLauncherStep.execute(this.#logger, this.#fetchStep,
-        this.#buildStep))) {
+        this.#buildStep, this.#pruneStep))) {
       this.#logger.error("Add Launcher step failed.");
       return false;
     }
