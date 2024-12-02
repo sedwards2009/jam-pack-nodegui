@@ -16,8 +16,7 @@
         "jsx": "react",
         "experimentalDecorators": true,
         "baseUrl": ".",
-        "emitDecoratorMetadata": true,
-        "skipLibCheck": true
+        "emitDecoratorMetadata": true
     },
     "include": [
         "./src/**/*.ts"
