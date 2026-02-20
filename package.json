@@ -1,6 +1,6 @@
 {
   "name": "jam-pack-nodegui",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "Tool to package NodeGui applications",
   "main": "dist/main.js",
   "author": "Simon Edwards <simon@simonzone.com>",
@@ -37,7 +37,7 @@
     "typescript": "^4.7.4"
   },
   "optionalDependencies": {
-    "appdmg": "^0.6.4",
+    "appdmg": "^0.6.6",
     "rcedit": "^3.0.1"
   },
   "packageManager": "yarn@3.2.3",
