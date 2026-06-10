@@ -251,8 +251,10 @@ export class PruneStep {
     logger.info("Pruning empty directories");
     await pruneEmptyDirectories(".");
 
-    logger.info("Fix bignumber.js");
-    shell.mv("node_modules/bignumber.js/bignumber.js", "node_modules/bignumber.js/index.js");
+    if (shell.test("-f", "node_modules/bignumber.js/bignumber.js")) {
+      logger.info("Fix bignumber.js");
+      shell.mv("node_modules/bignumber.js/bignumber.js", "node_modules/bignumber.js/index.js");
+    }
     
     shell.cd(prepareStep.getTempDirectory());
     const env: { [key: string]: string } = {};
