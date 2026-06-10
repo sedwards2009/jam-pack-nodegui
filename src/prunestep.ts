@@ -128,6 +128,9 @@ export class PruneStep {
       "node_modules/cuid/lib/*.js",
       "node_modules/cuid/LICENSE",
       "node_modules/cuid/package.json",
+      "node_modules/@paralleldrive/cuid2/index.js",
+      "node_modules/@paralleldrive/cuid2/LICENSE",
+      "node_modules/@paralleldrive/cuid2/src/index.js",
 
       "node_modules/memoize-one/README.md",
       "node_modules/memoize-one/LICENSE",
