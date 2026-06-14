@@ -128,11 +128,20 @@ export class PruneStep {
       "node_modules/cuid/lib/*.js",
       "node_modules/cuid/LICENSE",
       "node_modules/cuid/package.json",
-
+      "node_modules/@paralleldrive/cuid2/index.js",
+      "node_modules/@paralleldrive/cuid2/LICENSE",
+      "node_modules/@paralleldrive/cuid2/src/index.js",
+      
       "node_modules/memoize-one/README.md",
       "node_modules/memoize-one/LICENSE",
       "node_modules/memoize-one/package.json",
       "node_modules/memoize-one/dist/memoize-one.cjs.js",
+
+      "node_modules/@noble/hashes/*.js",
+      "node_modules/@noble/hashes/LICENSE",
+
+      "node_modules/bignumber.js/bignumber.js",
+      "node_modules/bignumber.js/LICENCE.md",
     ];
 
     const nodeguiDeleteList = [
@@ -242,6 +251,11 @@ export class PruneStep {
     logger.info("Pruning empty directories");
     await pruneEmptyDirectories(".");
 
+    if (shell.test("-f", "node_modules/bignumber.js/bignumber.js")) {
+      logger.info("Fix bignumber.js");
+      shell.mv("node_modules/bignumber.js/bignumber.js", "node_modules/bignumber.js/index.js");
+    }
+    
     shell.cd(prepareStep.getTempDirectory());
     const env: { [key: string]: string } = {};
     prepareStep.addVariables(env);
