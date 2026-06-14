@@ -1,6 +1,6 @@
 {
   "name": "jam-pack-nodegui",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "description": "Tool to package NodeGui applications",
   "main": "dist/main.js",
   "author": "Simon Edwards <simon@simonzone.com>",
